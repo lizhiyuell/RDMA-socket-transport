@@ -4,9 +4,16 @@
 #include <rdma/rdma_verbs.h>
 #include "sock.h"
 #include <stdio.h>
-
+#include <stdlib.h>
+#include <assert.h>
+#include <string.h>
 
 #include <pthread.h>
+
+// RDMA definition
+#define ib_port 1
+#define ib_gid 3
+// RDMA definition
 
 namespace rdma{
 
@@ -70,14 +77,7 @@ namespace rdma{
 		struct qp_management *qpmgt;
 	}rdma_m;
 	
-	class Node{
-	public:
-		Node();
-		Node(){delete rrdma;}
 
-	private:
-			rdma_m* rrdma;
-	};
 
 
 	class socket{
@@ -95,9 +95,12 @@ namespace rdma{
 
 		int recv (void *buf, size_t len);
 
-	
+		
+
 	private:
-		 
+		rdma_m* rrdma;
+		int sock;
+		void seperate_addr(const char *addr, char *ip_addr, int& port_number);
 
 
 		 
