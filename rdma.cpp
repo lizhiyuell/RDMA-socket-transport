@@ -8,7 +8,9 @@
 
 namespace rdma{
 
-    socket::socket(){
+    socket::socket(int gid){
+        ib_gid = gid;
+        is_server = -1;
         rrdma = (rdma_m*) malloc( sizeof(rdma_m) );
         rrdma->s_ctx = ( struct connection * )malloc( sizeof( struct connection ) );
 
@@ -73,16 +75,41 @@ namespace rdma{
         rrdma->s_ctx->gidIndex = ib_gid;
     }
 
+
     socket::~socket(){
+
+        if(is_server==-1){
+            delete rrdma;
+            return;
+        }
+
+        // destroy qp management
+        ibv_destroy_qp(rrdma->qp);
         
+        // destroy memory management
+
+        TEST_NZ(ibv_dereg_mr(rrdma->memgt->rdma_send_mr));
+        free(rrdma->memgt->rdma_send_region);  rrdma->memgt->rdma_send_region = NULL;
+
+        TEST_NZ(ibv_dereg_mr(rrdma->memgt->rdma_recv_mr));
+        free(rrdma->memgt->rdma_recv_region);  rrdma->memgt->rdma_recv_region = NULL;
+        free(rrdma->memgt); rrdma->memgt = NULL;
+
+        // destory connection
+        TEST_NZ(ibv_destroy_cq(rrdma->s_ctx->recv_cq));
+        TEST_NZ(ibv_destroy_comp_channel(rrdma->s_ctx->comp_channel));
+
+        ibv_dealloc_pd(rrdma->s_ctx->pd);
+	    ibv_close_device(rrdma->s_ctx->ctx);
+
+        free(rrdma->s_ctx);
         delete rrdma;
-
-
     }
 
     int socket::bind(const char *addr){
 
         // bind TCP port for data exchange
+        is_server = 1;
         char* ip_addr;
         int bind_port;
         seperate_addr(addr, ip_addr, bind_port);
@@ -125,6 +152,7 @@ namespace rdma{
         return 1;
 }
     int socket::connect(const char* addr){
+        is_server = 0;
         char* ip_addr;
         int connect_port;
         seperate_addr(addr, ip_addr, connect_port);
@@ -200,8 +228,8 @@ namespace rdma{
         rrdma->memgt->rdma_send_region = (char *) malloc(BufferSize);
         
         // register memory for RDMA
-        TEST_Z( rrdma->memgt->rdma_recv_region = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_recv_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ) );
-        TEST_Z( rrdma->memgt->rdma_send_region = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_send_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ) );
+        TEST_Z( rrdma->memgt->rdma_recv_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_recv_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ) );
+        TEST_Z( rrdma->memgt->rdma_send_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_send_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ) );
 
         // rdma->qpmgt->data_num = connect_number-ctrl_number;
         // rdma->qpmgt->ctrl_num = ctrl_number;
@@ -411,7 +439,7 @@ namespace rdma{
 				}
 			}
         }
-        
+
         memcpy(buf, rrdma->memgt->rdma_recv_region, len);
 
         return 1;

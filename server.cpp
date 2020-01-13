@@ -7,7 +7,7 @@ int main(){
     char local_addr[40] = "tcp://172.23.12.124:8888";
     char msg[40] = "This is the server side";
     char recv_msg[40];
-    class rdma::socket server_sock = rdma::socket();
+    class rdma::socket server_sock = rdma::socket(3);
     server_sock.bind(local_addr);
     std::cout<<"bind port success"<<std::endl;
     server_sock.recv(recv_msg, 40);
