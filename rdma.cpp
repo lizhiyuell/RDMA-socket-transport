@@ -381,8 +381,40 @@ namespace rdma{
 
         wc_array = ( struct ibv* ) malloc( sizeof(struct ibv_wc) * 20 );
         cq = rrdma->s_ctx->recv_cq;
-        
 
+        int flag=1;
+        while(flag){
+            int num = ibv_poll_cq(cq, 10, wc_array);
+            if( num<0 ) continue;
+            for( int k = 0; k < num; k ++ ){
+				wc = &wc_array[k];
+				if( wc->opcode == IBV_WC_RECV || wc->opcode == IBV_WC_RECV_RDMA_WITH_IMM ){
+					if( wc->status != IBV_WC_SUCCESS ){
+						printf("recv error %d!\n", 0);
+
+					}				
+					// printf("back message received\n");
+					flag = 0;
+					struct ibv_recv_wr wr, *bad_wr = NULL;
+					struct ibv_sge sge;
+					wr.wr_id = wc->wr_id;
+					wr.next = NULL;
+					wr.sg_list = &sge;
+					wr.num_sge = 1;
+
+					sge.addr = (uintptr_t)rrdma->memgt->rdma_recv_region;
+					sge.length = BufferSize;
+					sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
+
+					TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
+					break;
+				}
+			}
+        }
+        
+        memcpy(buf, rrdma->memgt->rdma_recv_region, len);
+
+        return 1;
     }
 
     char* socket::seperate_addr(const char *addr,  char* ip_addr, int& port_number){
