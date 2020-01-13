@@ -16,8 +16,8 @@
 // #define ib_gid 3
 #define qp_size 500 // maximum of outstanding send/recv requests
 #define cq_size 500
-#define TEST_Z(x) assert(!x)
-#define TEST_NZ(x) assert(x)
+#define TEST_Z(x) assert(x)
+#define TEST_NZ(x) assert(!x)
 #define __polling
 #define BufferSize 2048  // send/recv buffer size for each node
 // RDMA definition

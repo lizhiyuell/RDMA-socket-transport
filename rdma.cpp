@@ -9,6 +9,8 @@
 using namespace rdma;
 
     socket::socket(int gid){
+
+        fprintf(stdout, "starting a new socket ...\n");
         ib_gid = gid;
         rrdma = (rdma_m*) malloc( sizeof(rdma_m) );
         rrdma->s_ctx = ( struct connection * )malloc( sizeof( struct connection ) );
@@ -77,6 +79,7 @@ using namespace rdma;
 
     socket::~socket(){
 
+        fprintf(stdout, "destroying current socket ...\n");
         // destroy qp management
         ibv_destroy_qp(rrdma->qp);
         
@@ -102,13 +105,16 @@ using namespace rdma;
 
     int socket::bind(const char *addr){
 
+        fprintf(stdout, "starting binding port on server side ...\n");
         // bind TCP port for data exchange
         char* ip_addr;
         int bind_port;
 
         seperate_addr(addr, ip_addr, bind_port);
 
+        // fprintf(stdout, "seperate port number is %d\n", bind_port);
         sock = sock_daemon_connect(bind_port);
+        // fprintf(stdout, "sock number is %d\n", sock);
 
         if (sock < 0) {
             fprintf(stderr, "failed to establish TCP connection with client on port %d\n", bind_port);
@@ -149,10 +155,13 @@ using namespace rdma;
         return 1;
 }
     int socket::connect(const char* addr){
+
+        fprintf(stdout, "starting connecting to the remote side ...\n");
         char* ip_addr;
         int connect_port;
         seperate_addr(addr, ip_addr, connect_port);
         int connect_count = 0;
+        sock = -1;
         while (1) {
             if (sock>=0) break;
             sock = sock_client_connect(ip_addr, connect_port);
@@ -200,7 +209,8 @@ using namespace rdma;
     }
 
     void socket::qp_connection(int is_server){
-  
+
+        fprintf(stdout, "starting qp connection ...\n");
         // build_context
         rrdma->s_ctx->pd = ibv_alloc_pd(rrdma->s_ctx->ctx);
         TEST_Z(rrdma->s_ctx->pd);
@@ -542,7 +552,7 @@ using namespace rdma;
                     j++;
                 }
                 temp_str[j]='\0';
-                i=i+j;
+                i=i+j+1;
                 port_number=atoi(&addr[i]);
                 strcpy(ip_addr, temp_str);
                 break;
