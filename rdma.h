@@ -15,6 +15,7 @@
 #define ib_port 1
 // #define ib_gid 3
 #define qp_size 500 // maximum of outstanding send/recv requests
+#define cq_size 500
 #define TEST_Z(x) assert(!x)
 #define TEST_NZ(x) assert(x)
 #define __polling
@@ -102,7 +103,6 @@ namespace rdma{
 		rdma_m* rrdma;
 		int sock;  // sock to exchange data with the remote side
 		int ib_gid;
-		int is_server;
 
 		void seperate_addr(const char *addr, char *ip_addr, int& port_number);
 
@@ -118,12 +118,7 @@ namespace rdma{
 		
 		void post_send( ull tid, int send_size, int imm_data );
 
-
-	
 	};
-
-
-
 
 }
 

@@ -10,7 +10,6 @@ namespace rdma{
 
     socket::socket(int gid){
         ib_gid = gid;
-        is_server = -1;
         rrdma = (rdma_m*) malloc( sizeof(rdma_m) );
         rrdma->s_ctx = ( struct connection * )malloc( sizeof( struct connection ) );
 
@@ -41,25 +40,25 @@ namespace rdma{
     
         int device_index;
         for (device_index = 0; device_index < num_devices; device_index ++) {
-        ib_dev = dev_list[device_index];
+            ib_dev = dev_list[device_index];
 
-        /* get device handle */
-        rrdma->s_ctx->ctx = ibv_open_device(ib_dev);
-        if (!rrdma->s_ctx->ctx) {
-            fprintf(stderr, "failed to open device %s\n", dev_name);
-            continue;
-        }
+            /* get device handle */
+            rrdma->s_ctx->ctx = ibv_open_device(ib_dev);
+            if (!rrdma->s_ctx->ctx) {
+                fprintf(stderr, "failed to open device %s\n", dev_name);
+                continue;
+            }
 
-        /* query port properties  */
-        if (ibv_query_port(rrdma->s_ctx->ctx, ib_port, &rrdma->s_ctx->port_attr)) {
-            fprintf(stderr, "ibv_query_port on port %u failed\n", ib_port);
-            continue;
+            /* query port properties  */
+            if (ibv_query_port(rrdma->s_ctx->ctx, ib_port, &rrdma->s_ctx->port_attr)) {
+                fprintf(stderr, "ibv_query_port on port %u failed\n", ib_port);
+                continue;
+            }
+            fprintf(stderr, "%s phy %d\n", ibv_get_device_name(dev_list[i]), rrdma->s_ctx->port_attr.phys_state);
+            if( rrdma->s_ctx->port_attr.state == IBV_PORT_ACTIVE ){
+                break;
+            }
         }
-        fprintf(stderr, "%s phy %d\n", ibv_get_device_name(dev_list[i]), rrdma->s_ctx->port_attr.phys_state);
-        if( rrdma->s_ctx->port_attr.state == IBV_PORT_ACTIVE ){
-            break;
-        }
-	}
 
 
         //	/* We are now done with device list, free it */
@@ -77,11 +76,6 @@ namespace rdma{
 
 
     socket::~socket(){
-
-        if(is_server==-1){
-            delete rrdma;
-            return;
-        }
 
         // destroy qp management
         ibv_destroy_qp(rrdma->qp);
@@ -109,18 +103,20 @@ namespace rdma{
     int socket::bind(const char *addr){
 
         // bind TCP port for data exchange
-        is_server = 1;
         char* ip_addr;
         int bind_port;
+
         seperate_addr(addr, ip_addr, bind_port);
+
         sock = sock_daemon_connect(bind_port);
+
         if (sock < 0) {
             fprintf(stderr, "failed to establish TCP connection with client on port %d\n", bind_port);
             return -1;
         }
         fprintf(stdout, "TCP connection was established\n");
 
-        qp_connection(1)
+        qp_connection(1);
 
         post_send( 50, sizeof(struct ibv_mr), 0 );  
         int ss = get_wc( rrdma, &wc );
@@ -152,7 +148,6 @@ namespace rdma{
         return 1;
 }
     int socket::connect(const char* addr){
-        is_server = 0;
         char* ip_addr;
         int connect_port;
         seperate_addr(addr, ip_addr, connect_port);
@@ -203,10 +198,7 @@ namespace rdma{
     }
 
     socket::qp_connection(int is_server){
-        // initialization
-        struct ibv_qp_init_attr *qp_attr;
-        qp_attr = ( struct ibv_qp_init_attr* )malloc( sizeof( struct ibv_qp_init_attr ) );
-
+  
         // build_context
         TEST_Z(rrdma->s_ctx->pd = ibv_alloc_pd(rrdma->s_ctx->ctx));
         TEST_Z(rrdma->s_ctx->comp_channel = ibv_create_comp_channel(rrdma->s_ctx->ctx));
@@ -215,11 +207,11 @@ namespace rdma{
         // rrdma->s_ctx->cq_mem = (struct ibv_cq **)malloc(sizeof(struct ibv_cq *)*2);
         
         // TEST_Z(rrdma->s_ctx->cq_data = ibv_create_cq(rrdma->s_ctx->ctx, cq_size, NULL, rrdma->s_ctx->comp_channel, 0)); 
-        TEST_Z(rrdma->s_ctx->send_cq = ibv_create_cq(rrdma->s_ctx->ctx, cq_size, NULL, rrdma->s_ctx->comp_channel, 0)); 
+        // TEST_Z(rrdma->s_ctx->send_cq = ibv_create_cq(rrdma->s_ctx->ctx, cq_size, NULL, rrdma->s_ctx->comp_channel, 0)); 
         TEST_Z(rrdma->s_ctx->recv_cq = ibv_create_cq(rrdma->s_ctx->ctx, cq_size, NULL, rrdma->s_ctx->comp_channel, 0)); 
 
         #ifndef __polling			
-                TEST_NZ(ibv_req_notify_cq(s_ctx->send_cq, 0));
+                // TEST_NZ(ibv_req_notify_cq(s_ctx->send_cq, 0));
                 TEST_NZ(ibv_req_notify_cq(s_ctx->recv_cq, 0));
         #endif
 
@@ -233,9 +225,13 @@ namespace rdma{
 
         // rdma->qpmgt->data_num = connect_number-ctrl_number;
         // rdma->qpmgt->ctrl_num = ctrl_number;
+        // set qp attribution
+        struct ibv_qp_init_attr *qp_attr;
+        qp_attr = ( struct ibv_qp_init_attr* )malloc( sizeof( struct ibv_qp_init_attr ) );
         memset(qp_attr, 0, sizeof(*qp_attr));
+
         qp_attr->qp_type = IBV_QPT_RC;
-        qp_attr->send_cq = rrdma->s_ctx->send_cq;
+        // qp_attr->send_cq = rrdma->s_ctx->send_cq;
         qp_attr->recv_cq = rrdma->s_ctx->recv_cq;
 
         qp_attr->cap.max_send_wr = qp_size;
@@ -248,8 +244,8 @@ namespace rdma{
         
         struct ibv_qp *myqp = ibv_create_qp( rrdma->s_ctx->pd, qp_attr );
         rrdma->qp = myqp;
-        // ----------------------------
         // connect_qp( rrdma, myqp, tid );
+        // connect qp
         struct cm_con_data_t 	local_con_data;
 	    struct cm_con_data_t 	remote_con_data;
 	    struct cm_con_data_t 	tmp_con_data;
