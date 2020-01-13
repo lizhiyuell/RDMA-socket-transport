@@ -13,6 +13,6 @@ int main(){
     server_sock.recv(recv_msg, 40);
     std::cout<<"receive remote message success."<<std::endl<<"emote message is "<<std::endl<<recv_msg<<std::endl;
     server_sock.send(msg, 40);
-    std::cout<<"message send success"<:std::endl;    
+    std::cout<<"message send success"<<std::endl;    
     return 0;
 }

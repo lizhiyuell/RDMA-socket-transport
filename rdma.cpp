@@ -6,7 +6,7 @@
 #include <rdma/rdma_verbs.h>
 */
 
-namespace rdma{
+using namespace rdma;
 
     socket::socket(int gid){
         ib_gid = gid;
@@ -22,7 +22,7 @@ namespace rdma{
         // int mr_flags = 0;
         // int cq_size = 0;
         
-        // char *dev_name = NULL;
+        char *dev_name = NULL;
 
         dev_list = ibv_get_device_list(&num_devices);
         if (!dev_list) {
@@ -54,7 +54,7 @@ namespace rdma{
                 fprintf(stderr, "ibv_query_port on port %u failed\n", ib_port);
                 continue;
             }
-            fprintf(stderr, "%s phy %d\n", ibv_get_device_name(dev_list[i]), rrdma->s_ctx->port_attr.phys_state);
+            fprintf(stderr, "%s phy %d\n", ibv_get_device_name(dev_list[device_index]), rrdma->s_ctx->port_attr.phys_state);
             if( rrdma->s_ctx->port_attr.state == IBV_PORT_ACTIVE ){
                 break;
             }
@@ -118,13 +118,14 @@ namespace rdma{
 
         qp_connection(1);
 
+        struct ibv_wc wc;
         post_send( 50, sizeof(struct ibv_mr), 0 );  
-        int ss = get_wc( rrdma, &wc );
+        int ss = get_wc( &wc );
         
         // printf("add: %p length: %d\n", rrdma->memgt->rdma_recv_mr->addr, rrdma->memgt->rdma_recv_mr->length);
         
         post_recv( 20, sizeof(struct ibv_mr));
-        ss = get_wc( rrdma, &wc );
+        ss = get_wc( &wc );
         memcpy( &rrdma->memgt->peer_mr, rrdma->memgt->rdma_recv_region, sizeof(struct ibv_mr) );
         // printf("peer add: %p length: %d\n", rrdma->memgt->peer_mr.addr, rrdma->memgt->peer_mr.length);
 
@@ -159,7 +160,7 @@ namespace rdma{
             sleep(3);
             connect_count ++;
             if(connect_count >= 5){
-                fprintf(stderr, "failed to establish TCP connection with client on port %d\n", bind_port);
+                fprintf(stderr, "failed to establish TCP connection with client on port %d\n", connect_port);
                 return -1;
             }
         }
@@ -167,15 +168,16 @@ namespace rdma{
 
         qp_connection(0);
 
+        struct ibv_wc wc;
         post_recv( 20, sizeof(struct ibv_mr)); 
         
-        int tmp = get_wc( rrdma, &wc ); 
+        int tmp = get_wc( &wc ); 
         memcpy( &rrdma->memgt->peer_mr, rrdma->memgt->rdma_recv_region, sizeof(struct ibv_mr) );
         
         memcpy( rrdma->memgt->rdma_send_region, rrdma->memgt->rdma_recv_mr, sizeof(struct ibv_mr) );
         post_send( 50, sizeof(struct ibv_mr), 0 );
         
-        int ss = get_wc( rrdma, &wc );
+        int ss = get_wc( &wc );
         
         printf("connect port success with remote side\n");
         // add additional recv
@@ -197,19 +199,22 @@ namespace rdma{
         return 1;
     }
 
-    socket::qp_connection(int is_server){
+    void socket::qp_connection(int is_server){
   
         // build_context
-        TEST_Z(rrdma->s_ctx->pd = ibv_alloc_pd(rrdma->s_ctx->ctx));
-        TEST_Z(rrdma->s_ctx->comp_channel = ibv_create_comp_channel(rrdma->s_ctx->ctx));
+        rrdma->s_ctx->pd = ibv_alloc_pd(rrdma->s_ctx->ctx);
+        TEST_Z(rrdma->s_ctx->pd);
+
+        rrdma->s_ctx->comp_channel = ibv_create_comp_channel(rrdma->s_ctx->ctx);
+        TEST_Z(rrdma->s_ctx->comp_channel);
         // TEST_Z(rrdma->s_ctx->mem_channel = ibv_create_comp_channel(rrdma->s_ctx->ctx));
         /* pay attention to size of CQ */
         // rrdma->s_ctx->cq_mem = (struct ibv_cq **)malloc(sizeof(struct ibv_cq *)*2);
         
         // TEST_Z(rrdma->s_ctx->cq_data = ibv_create_cq(rrdma->s_ctx->ctx, cq_size, NULL, rrdma->s_ctx->comp_channel, 0)); 
         // TEST_Z(rrdma->s_ctx->send_cq = ibv_create_cq(rrdma->s_ctx->ctx, cq_size, NULL, rrdma->s_ctx->comp_channel, 0)); 
-        TEST_Z(rrdma->s_ctx->recv_cq = ibv_create_cq(rrdma->s_ctx->ctx, cq_size, NULL, rrdma->s_ctx->comp_channel, 0)); 
-
+        rrdma->s_ctx->recv_cq = ibv_create_cq(rrdma->s_ctx->ctx, cq_size, NULL, rrdma->s_ctx->comp_channel, 0); 
+        TEST_Z(rrdma->s_ctx->recv_cq); 
         #ifndef __polling			
                 // TEST_NZ(ibv_req_notify_cq(s_ctx->send_cq, 0));
                 TEST_NZ(ibv_req_notify_cq(s_ctx->recv_cq, 0));
@@ -220,8 +225,10 @@ namespace rdma{
         rrdma->memgt->rdma_send_region = (char *) malloc(BufferSize);
         
         // register memory for RDMA
-        TEST_Z( rrdma->memgt->rdma_recv_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_recv_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ) );
-        TEST_Z( rrdma->memgt->rdma_send_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_send_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ) );
+        rrdma->memgt->rdma_recv_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_recv_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ);
+        TEST_Z( rrdma->memgt->rdma_recv_mr );
+        rrdma->memgt->rdma_send_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_send_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ);
+        TEST_Z( rrdma->memgt->rdma_send_mr );
 
         // rdma->qpmgt->data_num = connect_number-ctrl_number;
         // rdma->qpmgt->ctrl_num = ctrl_number;
@@ -296,7 +303,7 @@ namespace rdma{
         /* sync to make sure that both sides are in states that they can connect to prevent packet loose */
         if (sock_sync_ready(sock, is_server)) {
             fprintf(stderr, "sync after QPs are were moved to RTS\n");
-            assert(false)
+            assert(false);
         }
         // -----------------------------------
     }
@@ -328,10 +335,90 @@ namespace rdma{
 	}
 
 	return 0;
+    }
+
+    int socket::modify_qp_to_rtr(struct ibv_qp *qp,	uint32_t remote_qpn, uint16_t dlid, uint8_t *remoteGid, struct connection *s_ctx){
+        
+        struct ibv_qp_attr 	attr;
+	    int 			flags;
+        int 			rc;
+
+        /* do the following QP transition: INIT -> RTR */
+        memset(&attr, 0, sizeof(attr));
+
+        attr.qp_state 			= IBV_QPS_RTR;
+        attr.path_mtu 			= IBV_MTU_256;
+        attr.dest_qp_num 		= remote_qpn;
+        attr.rq_psn 			= 0;
+        attr.max_dest_rd_atomic 	= 1;
+        attr.min_rnr_timer 		= 0x12;
+        
+        this->fillAhAttr(&attr.ah_attr, dlid, remoteGid, s_ctx);
+
+        flags = IBV_QP_STATE | IBV_QP_AV | IBV_QP_PATH_MTU | IBV_QP_DEST_QPN | 
+            IBV_QP_RQ_PSN | IBV_QP_MAX_DEST_RD_ATOMIC | IBV_QP_MIN_RNR_TIMER;
+
+        rc = ibv_modify_qp(qp, &attr, flags);
+        if (rc) {
+            fprintf(stderr, "failed to modify QP state to RTR %d \n", rc);
+            printf("%s\n", strerror(rc));
+            return rc;
+        }
+
+        return 0;
+    }
+
+    int socket::modify_qp_to_rts(struct ibv_qp *qp){
+
+        struct ibv_qp_attr 	attr;
+        int 			flags;
+        int 			rc;
+
+
+        /* do the following QP transition: RTR -> RTS */
+        memset(&attr, 0, sizeof(attr));
+
+        attr.qp_state 		= IBV_QPS_RTS;
+        attr.timeout 		= 0x12;
+        attr.retry_cnt 		= 7;
+        attr.rnr_retry 		= 7;
+        attr.sq_psn 		= 0;
+        attr.max_rd_atomic 	= 1;
+
+        flags = IBV_QP_STATE | IBV_QP_TIMEOUT | IBV_QP_RETRY_CNT | 
+            IBV_QP_RNR_RETRY | IBV_QP_SQ_PSN | IBV_QP_MAX_QP_RD_ATOMIC;
+
+        rc = ibv_modify_qp(qp, &attr, flags);
+        if (rc) {
+            fprintf(stderr, "failed to modify QP state to RTS\n");
+            return rc;
+        }
+
+        return 0;
 
     }
 
-    socket::post_recv( ull tid, int recv_size)
+    void socket::fillAhAttr(ibv_ah_attr *attr, uint32_t remoteLid, uint8_t *remoteGid, struct connection *s_ctx){
+
+        memset(attr, 0, sizeof(ibv_ah_attr));
+        attr->dlid = remoteLid;
+        attr->sl = 0;
+        attr->src_path_bits = 0;
+        attr->port_num = ib_port;
+
+        //attr->is_global = 0;
+
+        // fill ah_attr with GRH
+        
+        attr->is_global = 1;
+        memcpy(&attr->grh.dgid, remoteGid, 16);
+        attr->grh.flow_label = 0;
+        attr->grh.hop_limit = 1;
+        attr->grh.sgid_index = s_ctx->gidIndex;
+        attr->grh.traffic_class = 0;
+    }
+
+    void socket::post_recv( ull tid, int recv_size)
     {
         //ibv_recv_wr 用来布置receiver request（RR）。RR定义了非RDMA操作的buffer
         struct ibv_recv_wr wr, *bad_wr = NULL;
@@ -353,7 +440,7 @@ namespace rdma{
         //ibv_post_recv返回0时表示成功，返回-1时表示错误。好像是用来将一个工作请求（work request）放到队列对（QP）的，大概的用处应该就是添加一个传送任务进去
     }
 
-    socket::post_send( ull tid, int send_size, int imm_data )
+    void socket::post_send( ull tid, int send_size, int imm_data )
     {
         struct ibv_send_wr wr, *bad_wr = NULL;
         struct ibv_sge sge;
@@ -400,10 +487,11 @@ namespace rdma{
     }
 
     int socket::recv(void *buf,  size_t len){
-        struct ibv_wc *wc, *wc_array;
+        struct ibv_wc* wc;
+        struct ibv_wc* wc_array;
         struct ibv_cq *cq;
 
-        wc_array = ( struct ibv* ) malloc( sizeof(struct ibv_wc) * 20 );
+        wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * 20 );
         cq = rrdma->s_ctx->recv_cq;
 
         int flag=1;
@@ -441,9 +529,9 @@ namespace rdma{
         return 1;
     }
 
-    char* socket::seperate_addr(const char *addr,  char* ip_addr, int& port_number){
+    void socket::seperate_addr(const char *addr,  char* ip_addr, int& port_number){
         int i=0;
-        char temp_str[20]
+        char temp_str[20];
 
         while(addr[i]!='\0'){
             if(addr[i]=='/'){
@@ -454,7 +542,7 @@ namespace rdma{
                     j++;
                 }
                 temp_str[j]='\0';
-                i=i+j+;
+                i=i+j;
                 port_number=atoi(&addr[i]);
                 strcpy(ip_addr, temp_str);
                 break;
@@ -462,6 +550,25 @@ namespace rdma{
             else i++;
         }
     }
+
+    int socket::get_wc(struct ibv_wc *wc){
+    
+    void *ctx;
+	struct ibv_cq *cq;
+	int ret;
+	while(1){
+		ret = ibv_poll_cq(rrdma->s_ctx->recv_cq, 1, wc); //找cq里是否有完成的任务，有的话返回1
+		if( ret > 0 ) break;
+	}
+	if( ret <= 0 || wc->status != IBV_WC_SUCCESS ){
+		printf("get CQE fail: %d wr_id: %d\n", wc->status, (int)wc->wr_id);
+		return -1;
+	}
+    #ifdef _TEST_SYN
+        return wc->wr_id;
+    #else
+        return 0;
+    #endif
+    }
     
 
-}

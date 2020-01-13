@@ -33,13 +33,15 @@ namespace rdma{
 	};
 	*/
 
+	typedef unsigned long long ull;
+
 	struct connection{
 		struct ibv_context *ctx;
 		struct ibv_pd *pd;
 		// struct ibv_cq *cq_data, *cq_ctrl, *cq_mem;
 		// struct ibv_cq send_cq;
-		struct ibv_cq recv_cq;
-		struct ibv_comp_channel *comp_channel, *mem_channel;
+		struct ibv_cq* recv_cq;
+		struct ibv_comp_channel *comp_channel;
 		struct ibv_port_attr		port_attr;	
 		int gidIndex;
 		union ibv_gid gid;
@@ -113,10 +115,14 @@ namespace rdma{
 		int modify_qp_to_rtr(struct ibv_qp *qp,	uint32_t remote_qpn, uint16_t dlid, uint8_t *remoteGid, struct connection *s_ctx);
 		
 		int modify_qp_to_rts(struct ibv_qp *qp);
+
+		void fillAhAttr(ibv_ah_attr *attr, uint32_t remoteLid, uint8_t *remoteGid, struct connection *s_ctx);
 		
 		void post_recv( ull tid, int recv_size);
 		
 		void post_send( ull tid, int send_size, int imm_data );
+
+		int get_wc ( struct ibv_wc *wc );
 
 	};
 
