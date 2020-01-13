@@ -114,7 +114,8 @@ int sock_client_connect(
 	free(service);
 
 	if (sockfd < 0) {
-		fprintf(stderr, "couldn't connect to %s:%d\n", server_name, port);
+		// fprintf(stderr, "couldn't connect to %s:%d\n", server_name, port);
+		fprintf(stderr, "couldn't connect to %s:%d. Retry in 3 seconds.\n", server_name, port);
 		return -1;
 	}
 
