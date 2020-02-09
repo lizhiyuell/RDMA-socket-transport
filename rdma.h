@@ -39,7 +39,7 @@ namespace rdma{
 		struct ibv_context *ctx;
 		struct ibv_pd *pd;
 		// struct ibv_cq *cq_data, *cq_ctrl, *cq_mem;
-		// struct ibv_cq send_cq;
+		struct ibv_cq* send_cq;
 		struct ibv_cq* recv_cq;
 		struct ibv_comp_channel *comp_channel;
 		struct ibv_port_attr		port_attr;	
@@ -48,7 +48,7 @@ namespace rdma{
 	};
 
 	struct memory_management{
-	// 自己写的rdma内存管理控制结构体
+	// 自 己写的rdma内存管理控制结构体
 	// only one of them is useful for each QP
 	struct ibv_mr *rdma_send_mr;
 	struct ibv_mr *rdma_recv_mr;
@@ -122,7 +122,7 @@ namespace rdma{
 		
 		void post_send( ull tid, int send_size, int imm_data );
 
-		int get_wc ( struct ibv_wc *wc );
+		int get_wc ( struct ibv_wc *wc, int is_recv );
 
 	};
 

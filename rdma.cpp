@@ -14,6 +14,7 @@ using namespace rdma;
         ib_gid = gid;
         rrdma = (rdma_m*) malloc( sizeof(rdma_m) );
         rrdma->s_ctx = ( struct connection * )malloc( sizeof( struct connection ) );
+        rrdma->memgt = (struct memory_management *) malloc(sizeof( struct memory_management ));
 
         struct ibv_device **dev_list = NULL;
         int num_devices;        
@@ -123,15 +124,18 @@ using namespace rdma;
         fprintf(stdout, "TCP connection was established\n");
 
         qp_connection(1);
+        fprintf(stdout, "[Debug] qp connection finish\n");
 
         struct ibv_wc wc;
         post_send( 50, sizeof(struct ibv_mr), 0 );  
-        int ss = get_wc( &wc );
-        
+        fprintf(stdout, "[Debug] Check point 2.1\n");
+        int ss = get_wc( &wc, 0 );
+        fprintf(stdout, "[Debug] Check point 2.2\n");
         // printf("add: %p length: %d\n", rrdma->memgt->rdma_recv_mr->addr, rrdma->memgt->rdma_recv_mr->length);
         
         post_recv( 20, sizeof(struct ibv_mr));
-        ss = get_wc( &wc );
+        fprintf(stdout, "[Debug] Check point 2.3\n");
+        ss = get_wc( &wc, 1 );
         memcpy( &rrdma->memgt->peer_mr, rrdma->memgt->rdma_recv_region, sizeof(struct ibv_mr) );
         // printf("peer add: %p length: %d\n", rrdma->memgt->peer_mr.addr, rrdma->memgt->peer_mr.length);
 
@@ -162,9 +166,10 @@ using namespace rdma;
         seperate_addr(addr, ip_addr, connect_port);
         int connect_count = 0;
         sock = -1;
+        fprintf(stdout, "[Debug] ip_addr: %s  port: %d\n", ip_addr, connect_port);
         while (1) {
-            if (sock>=0) break;
             sock = sock_client_connect(ip_addr, connect_port);
+            if (sock>=0) break;
             fprintf(stdout, "failed to establish TCP connection to server %s, port %d. Try another time ...\n", ip_addr, connect_port);
             sleep(3);
             connect_count ++;
@@ -176,18 +181,19 @@ using namespace rdma;
         fprintf(stdout, "TCP connection was established\n");
 
         qp_connection(0);
+        fprintf(stdout, "[Debug] qp connection finish\n");
 
         struct ibv_wc wc;
         post_recv( 20, sizeof(struct ibv_mr)); 
-        
-        int tmp = get_wc( &wc ); 
+        fprintf(stdout, "[Debug] Check point 2.1\n");
+        int tmp = get_wc( &wc, 1 ); 
         memcpy( &rrdma->memgt->peer_mr, rrdma->memgt->rdma_recv_region, sizeof(struct ibv_mr) );
         
         memcpy( rrdma->memgt->rdma_send_region, rrdma->memgt->rdma_recv_mr, sizeof(struct ibv_mr) );
         post_send( 50, sizeof(struct ibv_mr), 0 );
-        
-        int ss = get_wc( &wc );
-        
+        fprintf(stdout, "[Debug] Check point 2.2\n");
+        int ss = get_wc( &wc, 0 );  // problem exists here.
+        fprintf(stdout, "[Debug] Check point 2.3\n");
         printf("connect port success with remote side\n");
         // add additional recv
         for( int i = 0; i < 10; i ++ ){
@@ -222,33 +228,35 @@ using namespace rdma;
         // rrdma->s_ctx->cq_mem = (struct ibv_cq **)malloc(sizeof(struct ibv_cq *)*2);
         
         // TEST_Z(rrdma->s_ctx->cq_data = ibv_create_cq(rrdma->s_ctx->ctx, cq_size, NULL, rrdma->s_ctx->comp_channel, 0)); 
-        // TEST_Z(rrdma->s_ctx->send_cq = ibv_create_cq(rrdma->s_ctx->ctx, cq_size, NULL, rrdma->s_ctx->comp_channel, 0)); 
+        rrdma->s_ctx->send_cq = ibv_create_cq(rrdma->s_ctx->ctx, cq_size, NULL, rrdma->s_ctx->comp_channel, 0);
+        TEST_Z(rrdma->s_ctx->send_cq); 
         rrdma->s_ctx->recv_cq = ibv_create_cq(rrdma->s_ctx->ctx, cq_size, NULL, rrdma->s_ctx->comp_channel, 0); 
         TEST_Z(rrdma->s_ctx->recv_cq); 
         #ifndef __polling			
-                // TEST_NZ(ibv_req_notify_cq(s_ctx->send_cq, 0));
+                TEST_NZ(ibv_req_notify_cq(s_ctx->send_cq, 0));
                 TEST_NZ(ibv_req_notify_cq(s_ctx->recv_cq, 0));
         #endif
-
+        fprintf(stdout, "[Debug] Check point 1\n");
         // allocate memory
         rrdma->memgt->rdma_recv_region = (char *) malloc(BufferSize);
+        fprintf(stdout, "[Debug] Check point 1.5\n");
         rrdma->memgt->rdma_send_region = (char *) malloc(BufferSize);
-        
+        fprintf(stdout, "[Debug] Check point 2\n");
         // register memory for RDMA
         rrdma->memgt->rdma_recv_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_recv_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ);
         TEST_Z( rrdma->memgt->rdma_recv_mr );
         rrdma->memgt->rdma_send_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_send_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ);
         TEST_Z( rrdma->memgt->rdma_send_mr );
-
+        fprintf(stdout, "[Debug] Check point 3\n");
         // rdma->qpmgt->data_num = connect_number-ctrl_number;
         // rdma->qpmgt->ctrl_num = ctrl_number;
         // set qp attribution
         struct ibv_qp_init_attr *qp_attr;
         qp_attr = ( struct ibv_qp_init_attr* )malloc( sizeof( struct ibv_qp_init_attr ) );
         memset(qp_attr, 0, sizeof(*qp_attr));
-
+        fprintf(stdout, "[Debug] Check point 4\n");
         qp_attr->qp_type = IBV_QPT_RC;
-        // qp_attr->send_cq = rrdma->s_ctx->send_cq;
+        qp_attr->send_cq = rrdma->s_ctx->send_cq;
         qp_attr->recv_cq = rrdma->s_ctx->recv_cq;
 
         qp_attr->cap.max_send_wr = qp_size;
@@ -258,7 +266,7 @@ using namespace rdma;
         qp_attr->cap.max_inline_data = 200; // max size in byte of inline data on the send queue
         
         qp_attr->sq_sig_all = 1; // set as 1 to generate CQE from all WQ
-        
+        fprintf(stdout, "[Debug] Check point 4.5\n");
         struct ibv_qp *myqp = ibv_create_qp( rrdma->s_ctx->pd, qp_attr );
         rrdma->qp = myqp;
         // connect_qp( rrdma, myqp, tid );
@@ -267,7 +275,7 @@ using namespace rdma;
 	    struct cm_con_data_t 	remote_con_data;
 	    struct cm_con_data_t 	tmp_con_data;
 	    int 			rc;
-
+        fprintf(stdout, "[Debug] Check point 5\n");
         rc = modify_qp_to_init(myqp);
         if (rc) {
             fprintf(stderr, "change QP state to INIT failed\n");
@@ -277,7 +285,7 @@ using namespace rdma;
         local_con_data.qp_num = myqp->qp_num;
         local_con_data.lid    = rrdma->s_ctx->port_attr.lid;
         memcpy( local_con_data.remoteGid, rrdma->s_ctx->gid.raw, 16*sizeof(uint8_t) );
-
+        fprintf(stdout, "[Debug] Check point 6\n");
         // exchange local data with remote side
         if (sock_sync_data(sock, is_server, sizeof(struct cm_con_data_t), &local_con_data, &tmp_con_data) < 0) {
             fprintf(stderr, "failed to exchange connection data between sides\n");
@@ -287,13 +295,13 @@ using namespace rdma;
         remote_con_data.qp_num = tmp_con_data.qp_num;
         remote_con_data.lid    = tmp_con_data.lid;
         memcpy( remote_con_data.remoteGid, tmp_con_data.remoteGid, 16*sizeof(uint8_t) );
-
+        fprintf(stdout, "[Debug] Check point 7\n");
         rc = modify_qp_to_rtr(myqp, remote_con_data.qp_num, remote_con_data.lid, remote_con_data.remoteGid, rrdma->s_ctx);
         if (rc) {
             fprintf(stderr, "failed to modify QP state from RESET to RTS\n");
             assert(false);
         }
-
+        fprintf(stdout, "[Debug] Check point 8\n");
         /* only the daemon post SR, so only he should be in RTS
         (the client can be moved to RTS as well)
         */
@@ -308,7 +316,7 @@ using namespace rdma;
 
             fprintf(stdout, "QP state was change to RTS\n");
         }
-
+        fprintf(stdout, "[Debug] Check point 9\n");
         // -----------------------------------
         /* sync to make sure that both sides are in states that they can connect to prevent packet loose */
         if (sock_sync_ready(sock, is_server)) {
@@ -445,7 +453,9 @@ using namespace rdma;
         sge.length = recv_size;
         sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
         
+        fprintf(stdout, "[Debug] check point 1 in post_recv\n");
         TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
+        fprintf(stdout, "[Debug] check point 2 in post_recv\n");
         //TEST_NZ是一个定义的函数，如果内部不为0，则返回错误。
         //ibv_post_recv返回0时表示成功，返回-1时表示错误。好像是用来将一个工作请求（work request）放到队列对（QP）的，大概的用处应该就是添加一个传送任务进去
     }
@@ -469,7 +479,9 @@ using namespace rdma;
         sge.length = send_size;
         sge.lkey = rrdma->memgt->rdma_send_mr->lkey;
         
+        fprintf(stdout, "[Debug] check point 1 in post_send\n");
         TEST_NZ(ibv_post_send(rrdma->qp, &wr, &bad_wr));
+        fprintf(stdout, "[Debug] check point 2 in post_send\n");
     }
 
     int socket::send(const void *buf, size_t len){
@@ -561,14 +573,15 @@ using namespace rdma;
         }
     }
 
-    int socket::get_wc(struct ibv_wc *wc){
+    int socket::get_wc(struct ibv_wc *wc, int is_recv){
     
-    void *ctx;
-	struct ibv_cq *cq;
+    // void *ctx;
+	// struct ibv_cq *cq;
 	int ret;
 	while(1){
-		ret = ibv_poll_cq(rrdma->s_ctx->recv_cq, 1, wc); //找cq里是否有完成的任务，有的话返回1
-		if( ret > 0 ) break;
+		if( is_recv ) ret = ibv_poll_cq(rrdma->s_ctx->recv_cq, 1, wc); //找cq里是否有完成的任务，有的话返回1
+		else ret = ibv_poll_cq(rrdma->s_ctx->send_cq, 1, wc);
+        if( ret > 0 ) break;
 	}
 	if( ret <= 0 || wc->status != IBV_WC_SUCCESS ){
 		printf("get CQE fail: %d wr_id: %d\n", wc->status, (int)wc->wr_id);
