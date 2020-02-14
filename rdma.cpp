@@ -11,7 +11,6 @@ using namespace rdma;
     socket::socket(int gid){
 
         fprintf(stdout, "starting a new socket ...\n");
-        ib_gid = gid;
         rrdma = (rdma_m*) malloc( sizeof(rdma_m) );
         rrdma->s_ctx = ( struct connection * )malloc( sizeof( struct connection ) );
         rrdma->memgt = (struct memory_management *) malloc(sizeof( struct memory_management ));
@@ -65,16 +64,16 @@ using namespace rdma;
 
 
         //	/* We are now done with device list, free it */
-        ibv_free_device_list(dev_list);
-        dev_list = NULL;
-        ib_dev = NULL;
+        // ibv_free_device_list(dev_list);
+        // dev_list = NULL;
+        // ib_dev = NULL;
 
         /* query port properties  */
-        if (ibv_query_gid(rrdma->s_ctx->ctx, ib_port, ib_gid, &rrdma->s_ctx->gid)) {
-            fprintf(stderr, "ibv_query_gid on port %u gid %d failed\n", ib_port, ib_gid);
+        if (ibv_query_gid(rrdma->s_ctx->ctx, ib_port, gid, &rrdma->s_ctx->gid)) {
+            fprintf(stderr, "ibv_query_gid on port %u gid %d failed\n", ib_port, gid);
             assert(false);
         }
-        rrdma->s_ctx->gidIndex = ib_gid;
+        rrdma->s_ctx->gidIndex = gid;
     }
 
 
@@ -88,20 +87,26 @@ using namespace rdma;
 
         TEST_NZ(ibv_dereg_mr(rrdma->memgt->rdma_send_mr));
         free(rrdma->memgt->rdma_send_region);  rrdma->memgt->rdma_send_region = NULL;
-
         TEST_NZ(ibv_dereg_mr(rrdma->memgt->rdma_recv_mr));
         free(rrdma->memgt->rdma_recv_region);  rrdma->memgt->rdma_recv_region = NULL;
         free(rrdma->memgt); rrdma->memgt = NULL;
 
         // destory connection
+        fprintf(stdout, "[Final] checkpoint 1\n");
         TEST_NZ(ibv_destroy_cq(rrdma->s_ctx->recv_cq));
+        fprintf(stdout, "[Final] checkpoint 2\n");
+        TEST_NZ(ibv_destroy_cq(rrdma->s_ctx->send_cq));
+        fprintf(stdout, "[Final] checkpoint 3\n");
         TEST_NZ(ibv_destroy_comp_channel(rrdma->s_ctx->comp_channel));
-
+        fprintf(stdout, "[Final] checkpoint 4\n");
         ibv_dealloc_pd(rrdma->s_ctx->pd);
+        fprintf(stdout, "[Final] checkpoint 5\n");
 	    ibv_close_device(rrdma->s_ctx->ctx);
-
+        fprintf(stdout, "[Final] checkpoint 6\n");
         free(rrdma->s_ctx);
-        delete rrdma;
+        fprintf(stdout, "[Final] checkpoint 7\n");
+        free(rrdma);
+        fprintf(stdout, "[Final] checkpoint 8\n");
     }
 
     int socket::bind(const char *addr){
@@ -127,12 +132,11 @@ using namespace rdma;
         fprintf(stdout, "[Debug] qp connection finish\n");
 
         struct ibv_wc wc;
+        memcpy(rrdma->memgt->rdma_send_region, rrdma->memgt->rdma_recv_mr, sizeof(struct ibv_mr));
         post_send( 50, sizeof(struct ibv_mr), 0 );  
         fprintf(stdout, "[Debug] Check point 2.1\n");
         int ss = get_wc( &wc, 0 );
         fprintf(stdout, "[Debug] Check point 2.2\n");
-        // printf("add: %p length: %d\n", rrdma->memgt->rdma_recv_mr->addr, rrdma->memgt->rdma_recv_mr->length);
-        
         post_recv( 20, sizeof(struct ibv_mr));
         fprintf(stdout, "[Debug] Check point 2.3\n");
         ss = get_wc( &wc, 1 );
@@ -188,7 +192,6 @@ using namespace rdma;
         fprintf(stdout, "[Debug] Check point 2.1\n");
         int tmp = get_wc( &wc, 1 ); 
         memcpy( &rrdma->memgt->peer_mr, rrdma->memgt->rdma_recv_region, sizeof(struct ibv_mr) );
-        
         memcpy( rrdma->memgt->rdma_send_region, rrdma->memgt->rdma_recv_mr, sizeof(struct ibv_mr) );
         post_send( 50, sizeof(struct ibv_mr), 0 );
         fprintf(stdout, "[Debug] Check point 2.2\n");
@@ -239,14 +242,18 @@ using namespace rdma;
         fprintf(stdout, "[Debug] Check point 1\n");
         // allocate memory
         rrdma->memgt->rdma_recv_region = (char *) malloc(BufferSize);
-        fprintf(stdout, "[Debug] Check point 1.5\n");
+        // fprintf(stdout, "[Debug] The address 1 is %p\n", rrdma->memgt->rdma_recv_region);
+        // fprintf(stdout, "[Debug] Check point 1.5\n");
         rrdma->memgt->rdma_send_region = (char *) malloc(BufferSize);
-        fprintf(stdout, "[Debug] Check point 2\n");
+        // fprintf(stdout, "[Debug] Check point 2\n");
         // register memory for RDMA
         rrdma->memgt->rdma_recv_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_recv_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ);
         TEST_Z( rrdma->memgt->rdma_recv_mr );
+        // fprintf(stdout, "[Debug] The address 2 is %p\n", (char*)rrdma->memgt->rdma_recv_mr->addr);
+        // rrdma->memgt->rdma_recv_region = (char*)rrdma->memgt->rdma_recv_mr->addr;
         rrdma->memgt->rdma_send_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_send_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ);
         TEST_Z( rrdma->memgt->rdma_send_mr );
+        // rrdma->memgt->rdma_send_region = (char*)rrdma->memgt->rdma_send_mr->addr;
         fprintf(stdout, "[Debug] Check point 3\n");
         // rdma->qpmgt->data_num = connect_number-ctrl_number;
         // rdma->qpmgt->ctrl_num = ctrl_number;
@@ -436,7 +443,7 @@ using namespace rdma;
         attr->grh.traffic_class = 0;
     }
 
-    void socket::post_recv( ull tid, int recv_size)
+    void socket::post_recv( ull tid, int recv_size) // ok
     {
         //ibv_recv_wr 用来布置receiver request（RR）。RR定义了非RDMA操作的buffer
         struct ibv_recv_wr wr, *bad_wr = NULL;
@@ -484,7 +491,7 @@ using namespace rdma;
         fprintf(stdout, "[Debug] check point 2 in post_send\n");
     }
 
-    int socket::send(const void *buf, size_t len){
+    int socket::send(const void *buf, size_t len){  // ok
         struct ibv_send_wr swr, *sbad_wr = NULL;
         struct ibv_sge sge;
         struct ibv_cq *cq;
@@ -499,16 +506,21 @@ using namespace rdma;
 		swr.wr.rdma.rkey = rrdma->memgt->peer_mr.rkey;
 
         memcpy(rrdma->memgt->rdma_send_region, buf, len);
-        sge.addr = (uintptr_t)buf;
+        sge.addr = (uintptr_t)rrdma->memgt->rdma_send_region;
 		sge.length = len;
 		sge.lkey = rrdma->memgt->rdma_send_mr->lkey;
 
         TEST_NZ(ibv_post_send(rrdma->qp, &swr, &sbad_wr));
 
+        // test if rejected
+        // if(sbad_wr != NULL){
+        //     fprintf(stdout, "[Error] The wr is rejected!\n");
+        // }
+
         return 1;
     }
 
-    int socket::recv(void *buf,  size_t len){
+    int socket::recv(void *buf,  size_t len){  // ok
         struct ibv_wc* wc;
         struct ibv_wc* wc_array;
         struct ibv_cq *cq;
@@ -517,17 +529,23 @@ using namespace rdma;
         cq = rrdma->s_ctx->recv_cq;
 
         int flag=1;
+        // fprintf(stdout, "[Debug] checkpoint 1 in recv function\n");
         while(flag){
             int num = ibv_poll_cq(cq, 10, wc_array);
             if( num<0 ) continue;
+            // fprintf(stdout, "[Debug] checkpoint 2 in recv function\n");
+            // fprintf(stdout, "[Debug] the number 'num' is %d\n", num);
+            // sleep(5);
             for( int k = 0; k < num; k ++ ){
+                // fprintf(stdout, "[Debug] checkpoint 3 in recv function\n");
 				wc = &wc_array[k];
 				if( wc->opcode == IBV_WC_RECV || wc->opcode == IBV_WC_RECV_RDMA_WITH_IMM ){
+                    // fprintf(stdout, "[Debug] checkpoint 4 in recv function\n");
 					if( wc->status != IBV_WC_SUCCESS ){
 						printf("recv error %d!\n", 0);
-
 					}				
 					// printf("back message received\n");
+                    // fprintf(stdout, "[Debug] checkpoint 5 in recv function\n");
 					flag = 0;
 					struct ibv_recv_wr wr, *bad_wr = NULL;
 					struct ibv_sge sge;

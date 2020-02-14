@@ -8,6 +8,7 @@ int main(){
     char msg[40] = "This is the client side";
     class rdma::socket client_sock = rdma::socket(5);
     client_sock.connect(remote_addr);
+    // sleep(5);
     client_sock.send(msg, 40);
     std::cout<<"message send success"<<std::endl;
     client_sock.recv(msg, 40);

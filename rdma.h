@@ -19,7 +19,7 @@
 #define TEST_Z(x) assert(x)
 #define TEST_NZ(x) assert(!x)
 #define __polling
-#define BufferSize 2048  // send/recv buffer size for each node
+#define BufferSize 4096  // send/recv  size for each node
 // RDMA definition
 
 namespace rdma{
@@ -56,7 +56,9 @@ namespace rdma{
 	struct ibv_mr peer_mr;
 	
 	char *rdma_send_region;
-	char *rdma_recv_region;	
+	char *rdma_recv_region;
+
+	
 	};
 
 	/*
