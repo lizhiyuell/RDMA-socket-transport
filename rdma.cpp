@@ -234,13 +234,11 @@ using namespace rdma;
         rrdma->memgt->rdma_recv_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_recv_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ);
         TEST_Z( rrdma->memgt->rdma_recv_mr );
         rrdma->memgt->rdma_send_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_send_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ);
-        fprintf(stdout, "[Debug] Check point 3\n");
 
         // set qp attribution
         struct ibv_qp_init_attr *qp_attr;
         qp_attr = ( struct ibv_qp_init_attr* )malloc( sizeof( struct ibv_qp_init_attr ) );
         memset(qp_attr, 0, sizeof(*qp_attr));
-        fprintf(stdout, "[Debug] Check point 4\n");
         qp_attr->qp_type = IBV_QPT_RC;
         qp_attr->send_cq = rrdma->s_ctx->send_cq;
         qp_attr->recv_cq = rrdma->s_ctx->recv_cq;
@@ -252,7 +250,6 @@ using namespace rdma;
         qp_attr->cap.max_inline_data = 200; // max size in byte of inline data on the send queue
         
         qp_attr->sq_sig_all = 1; // set as 1 to generate CQE from all WQ
-        fprintf(stdout, "[Debug] Check point 4.5\n");
         struct ibv_qp *myqp = ibv_create_qp( rrdma->s_ctx->pd, qp_attr );
         rrdma->qp = myqp;
         // connect qp
@@ -260,7 +257,6 @@ using namespace rdma;
 	    struct cm_con_data_t 	remote_con_data;
 	    struct cm_con_data_t 	tmp_con_data;
 	    int 			rc;
-        fprintf(stdout, "[Debug] Check point 5\n");
         rc = modify_qp_to_init(myqp);
         if (rc) {
             fprintf(stderr, "change QP state to INIT failed\n");
@@ -270,7 +266,6 @@ using namespace rdma;
         local_con_data.qp_num = myqp->qp_num;
         local_con_data.lid    = rrdma->s_ctx->port_attr.lid;
         memcpy( local_con_data.remoteGid, rrdma->s_ctx->gid.raw, 16*sizeof(uint8_t) );
-        fprintf(stdout, "[Debug] Check point 6\n");
         // exchange local data with remote side
         if (sock_sync_data(sock, is_server, sizeof(struct cm_con_data_t), &local_con_data, &tmp_con_data) < 0) {
             fprintf(stderr, "failed to exchange connection data between sides\n");
@@ -280,13 +275,11 @@ using namespace rdma;
         remote_con_data.qp_num = tmp_con_data.qp_num;
         remote_con_data.lid    = tmp_con_data.lid;
         memcpy( remote_con_data.remoteGid, tmp_con_data.remoteGid, 16*sizeof(uint8_t) );
-        fprintf(stdout, "[Debug] Check point 7\n");
         rc = modify_qp_to_rtr(myqp, remote_con_data.qp_num, remote_con_data.lid, remote_con_data.remoteGid, rrdma->s_ctx);
         if (rc) {
             fprintf(stderr, "failed to modify QP state from RESET to RTS\n");
             assert(false);
         }
-        fprintf(stdout, "[Debug] Check point 8\n");
         /* only the daemon post SR, so only he should be in RTS
         (the client can be moved to RTS as well)
         */
@@ -301,7 +294,6 @@ using namespace rdma;
 
             fprintf(stdout, "QP state was change to RTS\n");
         }
-        fprintf(stdout, "[Debug] Check point 9\n");
         // -----------------------------------
         /* sync to make sure that both sides are in states that they can connect to prevent packet loose */
         if (sock_sync_ready(sock, is_server)) {
@@ -438,12 +430,8 @@ using namespace rdma;
         sge.length = recv_size;
         sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
         
-        fprintf(stdout, "[Debug] check point 1 in post_recv\n");
         TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
-        fprintf(stdout, "[Debug] check point 2 in post_recv\n");
-        //TEST_NZ是一个定义的函数，如果内部不为0，则返回错误。
-        //ibv_post_recv返回0时表示成功，返回-1时表示错误。好像是用来将一个工作请求（work request）放到队列对（QP）的，大概的用处应该就是添加一个传送任务进去
-    }
+  }
 
     void socket::post_send( ull tid, int send_size, int imm_data )
     {
@@ -464,9 +452,7 @@ using namespace rdma;
         sge.length = send_size;
         sge.lkey = rrdma->memgt->rdma_send_mr->lkey;
         
-        fprintf(stdout, "[Debug] check point 1 in post_send\n");
         TEST_NZ(ibv_post_send(rrdma->qp, &wr, &bad_wr));
-        fprintf(stdout, "[Debug] check point 2 in post_send\n");
     }
 
     int socket::send(const void *buf, size_t len){  // ok
