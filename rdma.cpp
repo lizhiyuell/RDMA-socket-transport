@@ -134,7 +134,7 @@ using namespace rdma;
 
         if (sock < 0) {
             fprintf(stderr, "failed to establish TCP connection with client on port %d\n", bind_port);
-            return -1;
+            assert(false);
         }
         fprintf(stdout, "TCP connection was established\n");
 
@@ -166,7 +166,6 @@ using namespace rdma;
             TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
         }
 
-        return 1;
 }
 
     int socket::connect( const char *addr ){
@@ -191,9 +190,9 @@ using namespace rdma;
             fprintf(stdout, "failed to establish TCP connection to server %s, port %d. Try another time ...\n", ip_addr, connect_port);
             sleep(3);
             connect_count ++;
-            if(connect_count >= 5){
+            if(connect_count >= 10){
                 fprintf(stderr, "failed to establish TCP connection with client on port %d\n", connect_port);
-                return -1;
+                assert(false);
             }
         }
         fprintf(stdout, "TCP connection was established\n");
@@ -225,8 +224,7 @@ using namespace rdma;
 
             TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
         }
-
-        return 1;
+        
     }
 
     void socket::qp_connection(int is_server){
