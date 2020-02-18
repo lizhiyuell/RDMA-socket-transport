@@ -8,7 +8,6 @@
 #include <assert.h>
 #include <string.h>
 #include <unistd.h>
-
 #include <pthread.h>
 
 // RDMA definition
@@ -105,8 +104,14 @@ namespace rdma{
 
 	private:
 		rdma_m* rrdma;
+		pthread_t bind_thread, connect_thread;
+
 		int sock;  // sock to exchange data with the remote side
 		int ib_gid;
+
+		void* inner_bind( void *argv ); // bind function called by a new thread
+
+		void* inner_connect( void *argv );
 
 		void seperate_addr(const char *addr, char* &ip_addr, int& port_number);
 

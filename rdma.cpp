@@ -101,7 +101,17 @@ using namespace rdma;
         free(rrdma);
     }
 
-    int socket::bind(const char *addr){
+    int socket::
+
+    int socket::bind( const char *addr ){
+
+        fprintf(stdout, "running bind function in the background\n");
+        pthread_create( &bind_thread, NULL, inner_bind, (void *) addr);
+        return 0;
+    }
+
+    void* socket::inner_bind( void *argv ){
+        char* addr = (char *) argv;
 
         fprintf(stdout, "starting binding port on server side ...\n");
         // bind TCP port for data exchange
@@ -153,8 +163,17 @@ using namespace rdma;
 
         return 1;
 }
-    int socket::connect(const char* addr){
 
+    int socket::connect( const char *addr ){
+
+        fprintf(stdout, "running connect function in the background\n");
+        pthread_create( &connect_thread, NULL, inner_connect, (void *) addr);
+        return 0;
+    }
+
+    void* socket::inner_connect( void* argv ){
+
+        char * addr = (char *) argv;
         fprintf(stdout, "starting connecting to the remote side ...\n");
         char* ip_addr;
         int connect_port;
