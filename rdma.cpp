@@ -79,6 +79,10 @@ using namespace rdma;
 
     socket::~socket(){
 
+        // join the threads
+        pthread_join( bind_thread, NULL );
+        pthread_joint( connect_thread, NULL );
+
         fprintf(stdout, "destroying current socket ...\n");
         // destroy qp management
         ibv_destroy_qp(rrdma->qp);
@@ -99,6 +103,7 @@ using namespace rdma;
 	    ibv_close_device(rrdma->s_ctx->ctx);
         free(rrdma->s_ctx);
         free(rrdma);
+
     }
 
     int socket::
