@@ -1,0 +1,6 @@
+This project encapsulates two-sided RDMA transport verbs into socket form. It is originally designed to fit open-source databast Deneva from MIT. You can also adopt it in your own projects.
+
+Way to communicate:
+Deploy this project in different machines. Eample codes are in "client.cpp" and "server.cpp". When calling "socket" function, be sure to pass the gid number of your machine.
+
+Besides, to fit Deneva well, the ip address form is specially designed. You must adpot it into the form like "tcp://ip:port" to guarantee correct execution.
