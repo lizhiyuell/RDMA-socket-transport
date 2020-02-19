@@ -109,7 +109,7 @@ using namespace rdma;
     int socket::bind( const char *addr ){
 
         fprintf(stdout, "running bind function in the background\n");
-        pthread_create( &bind_thread, NULL, inner_bind, (void *) addr);
+        pthread_create( &bind_thread, NULL, std::bind(&socket::inner_bind, this), (void *) addr);
         return 0;
     }
 
@@ -169,7 +169,7 @@ using namespace rdma;
     int socket::connect( const char *addr ){
 
         fprintf(stdout, "running connect function in the background\n");
-        pthread_create( &connect_thread, NULL, inner_connect, (void *) addr);
+        pthread_create( &connect_thread, NULL, std::bind(&socket::inner_connect, this), (void *) addr);
         return 0;
     }
 
