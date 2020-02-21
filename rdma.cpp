@@ -130,6 +130,7 @@ using namespace rdma;
 
         // before seperate addr
         seperate_addr(addr, ip_addr, bind_port);
+        fprintf(stdout, "[Debug] After seperate function\n");
         free(ip_addr);
         ip_addr = NULL;
 
@@ -563,9 +564,10 @@ using namespace rdma;
         int i=0;
         char temp_str[20];
         // initialize
+        fprintf(stdout, "[func] db 1\n");
         for(int i=0;i<20;i++) temp_str[i]='\0';
         ip_addr = (char*) malloc(20);
-
+        fprintf(stdout, "[func] db 1\n");
         while(addr[i]!='\0'){
             if(addr[i]=='/'){
                 i+=2;
