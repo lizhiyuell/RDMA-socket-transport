@@ -566,8 +566,9 @@ using namespace rdma;
         // initialize
         fprintf(stdout, "[func] db 1\n");
         for(int i=0;i<20;i++) temp_str[i]='\0';
+        fprintf(stdout, "[func] db 2\n");
         ip_addr = (char*) malloc(20);
-        fprintf(stdout, "[func] db 1\n");
+        fprintf(stdout, "[func] db 3\n");
         while(addr[i]!='\0'){
             if(addr[i]=='/'){
                 i+=2;
