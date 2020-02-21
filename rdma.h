@@ -85,6 +85,9 @@ namespace rdma{
 		uint8_t     		remoteGid[16];  /* GID  */
 	};
 
+	void* bind_thread_func(void * args);
+
+	void* connect_thread_func(void * args);
 
 	class socket{
 	public:
@@ -138,10 +141,6 @@ namespace rdma{
 		const char * addr;
 		class socket * sock_ptr;
 	}param_t;
-
-	void* bind_thread_func(void * args);
-
-	void* connect_thread_func(void * args);
 	// ---
 
 
