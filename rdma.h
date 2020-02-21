@@ -113,6 +113,7 @@ namespace rdma{
 		rdma_m* rrdma;
 		pthread_t bind_thread, connect_thread;
 		int connect_flag; // a flag to show whether connection has been built. 0 for no and 1 for yes
+		param_t param_bind, param_connect;
 
 		int sock;  // sock to exchange data with the remote side
 		int ib_gid;
