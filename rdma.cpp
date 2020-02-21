@@ -106,7 +106,7 @@ using namespace rdma;
 
     }
 
-    void* bind_thread_func(void *args){
+    void* rdma::bind_thread_func(void *args){
         param_t *param = (param_t *) args;
         param->sock_ptr->inner_bind(param->addr);
     }
@@ -117,7 +117,7 @@ using namespace rdma;
         param_t param;
         param.addr = addr;
         param.sock_ptr = this;
-        pthread_create( &bind_thread, NULL, bind_thread_func, (void *) &param);
+        pthread_create( &bind_thread, NULL, rdma::bind_thread_func, (void *) &param);
         return 0;
     }
 
@@ -173,7 +173,7 @@ using namespace rdma;
 
 }
 
-    void* connect_thread_func(void *args){
+    void* rdma::connect_thread_func(void *args){
         param_t *param = (param_t *) args;
         param->sock_ptr->inner_connect(param->addr);
 }
@@ -184,7 +184,7 @@ using namespace rdma;
         param_t param;
         param.addr = addr;
         param.sock_ptr = this;
-        pthread_create( &connect_thread, NULL, connect_thread_func, (void *) &param);
+        pthread_create( &connect_thread, NULL, rdma::connect_thread_func, (void *) &param);
         return 0;
 }
 
