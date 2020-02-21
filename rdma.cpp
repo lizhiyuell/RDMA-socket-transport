@@ -115,9 +115,9 @@ using namespace rdma;
     int socket::bind( const char *addr ){
 
         fprintf(stdout, "running bind function in the background\n");
-        param_bind.addr = addr;
-        param_bind.sock_ptr = this;
-        pthread_create( &bind_thread, NULL, rdma::bind_thread_func, (void *) &param_bind);
+        this->param_bind.addr = addr;
+        this->param_bind.sock_ptr = this;
+        pthread_create( &bind_thread, NULL, rdma::bind_thread_func, (void *) &this->param_bind);
         return 0;
     }
 
@@ -183,9 +183,9 @@ using namespace rdma;
     int socket::connect( const char *addr ){
 
         fprintf(stdout, "running connect function in the background\n");
-        param_connect.addr = addr;
-        param_connect.sock_ptr = this;
-        pthread_create( &connect_thread, NULL, rdma::connect_thread_func, (void *) &param_connect);
+        this->param_connect.addr = addr;
+        this->param_connect.sock_ptr = this;
+        pthread_create( &connect_thread, NULL, rdma::connect_thread_func, (void *) &this->param_connect);
         return 0;
 }
 
