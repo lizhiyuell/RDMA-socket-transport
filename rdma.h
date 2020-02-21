@@ -101,9 +101,9 @@ namespace rdma{
 
 		int recv (void *buf, size_t len);
 
-		void inner_bind( char *addr ); // bind function called by a new thread
+		void inner_bind( const char *addr ); // bind function called by a new thread
 
-		void inner_connect( char *addr );
+		void inner_connect( const char *addr );
 		
 
 	private:

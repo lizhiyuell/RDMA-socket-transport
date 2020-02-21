@@ -117,7 +117,7 @@ using namespace rdma;
         param_t param;
         param.addr = addr;
         param.sock_ptr = this;
-        pthread_create( &bind_thread, NULL, bind_thread_funct, (void *) &param);
+        pthread_create( &bind_thread, NULL, bind_thread_func, (void *) &param);
         return 0;
     }
 
