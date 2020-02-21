@@ -9,9 +9,10 @@ int main(){
     class rdma::socket client_sock = rdma::socket(5);
     client_sock.connect(remote_addr);
     // sleep(5);
-    client_sock.send(msg, 40);
+    int rc = -1;
+    while(rc<0) rc = client_sock.send(msg, 40);
     std::cout<<"message send success"<<std::endl;
-    client_sock.recv(msg, 40);
+    while(rc<=0) rc = client_sock.recv(msg, 40);
     std::cout<<"receive remote message success."<<std::endl<<"remote message is "<<std::endl<<msg<<std::endl;
     
     return 0;

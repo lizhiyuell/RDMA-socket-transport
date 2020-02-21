@@ -10,6 +10,7 @@ using namespace rdma;
 
     socket::socket(int gid){
 
+        connect_flag = 0;
         fprintf(stdout, "starting a new socket ...\n");
         rrdma = (rdma_m*) malloc( sizeof(rdma_m) );
         rrdma->s_ctx = ( struct connection * )malloc( sizeof( struct connection ) );
@@ -172,6 +173,7 @@ using namespace rdma;
             TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
         }
 
+        connect_flag = 1;
 }
 
     void* rdma::connect_thread_func(void *args){
@@ -238,6 +240,7 @@ using namespace rdma;
             TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
         }
 
+        connect_flag = 1;
     }
 
     void socket::qp_connection(int is_server){
@@ -491,6 +494,8 @@ using namespace rdma;
     }
 
     int socket::send(const void *buf, size_t len){  // ok
+
+        if(connect_flag == 0) return -1;
         struct ibv_send_wr swr, *sbad_wr = NULL;
         struct ibv_sge sge;
         struct ibv_cq *cq;
@@ -516,7 +521,7 @@ using namespace rdma;
         //     fprintf(stdout, "[Error] The wr is rejected!\n");
         // }
 
-        return 1;
+        return len;
     }
 
     int socket::recv(void *buf,  size_t len){  // ok
@@ -526,6 +531,8 @@ using namespace rdma;
 
         wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * 20 );
         cq = rrdma->s_ctx->recv_cq;
+
+        if(connect_flag == 0) return 0;
 
         int flag=1;
         while(flag){
@@ -557,7 +564,7 @@ using namespace rdma;
 
         memcpy(buf, rrdma->memgt->rdma_recv_region, len);
 
-        return 1;
+        return len;
     }
 
     void socket::seperate_addr(const char *addr,  char* &ip_addr, int& port_number){

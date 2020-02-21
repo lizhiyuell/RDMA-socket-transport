@@ -10,9 +10,11 @@ int main(){
     class rdma::socket server_sock = rdma::socket(3);
     server_sock.bind(local_addr);
     std::cout<<"bind port success"<<std::endl;
-    server_sock.recv(recv_msg, 40);
+    int rc = 0;
+    while(rc<=0) rc = server_sock.recv(recv_msg, 40);
     std::cout<<"receive remote message success."<<std::endl<<"emote message is "<<std::endl<<recv_msg<<std::endl;
-    server_sock.send(msg, 40);
+    rc = -1;
+    while(rc<0) rc = server_sock.send(msg, 40);
     std::cout<<"message send success"<<std::endl;    
     return 0;
 }
