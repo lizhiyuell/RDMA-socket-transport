@@ -85,6 +85,13 @@ namespace rdma{
 		uint8_t     		remoteGid[16];  /* GID  */
 	};
 
+	// build for multi-thread coding
+	typedef struct thread_param {
+		const char * addr;
+		class socket * sock_ptr;
+	}param_t;
+	// ---
+
 	void* bind_thread_func(void * args);
 
 	void* connect_thread_func(void * args);
@@ -138,12 +145,7 @@ namespace rdma{
 
 	};
 
-	// build for multi-thread coding
-	typedef struct thread_param {
-		const char * addr;
-		class socket * sock_ptr;
-	}param_t;
-	// ---
+
 
 
 }
