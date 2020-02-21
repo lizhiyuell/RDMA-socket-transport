@@ -121,7 +121,7 @@ using namespace rdma;
         return 0;
     }
 
-    void socket::inner_bind( char *addr ){
+    void socket::inner_bind( const char *addr ){
 
         fprintf(stdout, "starting binding port on server side ...\n");
         // bind TCP port for data exchange
@@ -188,7 +188,7 @@ using namespace rdma;
         return 0;
 }
 
-    void socket::inner_connect( char *addr ){
+    void socket::inner_connect( const char *addr ){
 
         fprintf(stdout, "starting connecting to the remote side ...\n");
         char* ip_addr;
