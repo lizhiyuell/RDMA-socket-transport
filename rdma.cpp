@@ -106,15 +106,22 @@ using namespace rdma;
 
     }
 
+    void* bind_thread_func(void *args){
+        param_t *param = (param_t *) args;
+        param->sock_ptr->inner_bind(param->addr);
+    }
+
     int socket::bind( const char *addr ){
 
         fprintf(stdout, "running bind function in the background\n");
-        pthread_create( &bind_thread, NULL, std::mem_fn(&socket::inner_bind, this), (void *) addr);
+        param_t param;
+        param.addr = addr;
+        param.sock_ptr = this;
+        pthread_create( &bind_thread, NULL, bind_thread_funct, (void *) param);
         return 0;
     }
 
-    void* socket::inner_bind( void *argv ){
-        char* addr = (char *) argv;
+    void socket::inner_bind( char *addr ){
 
         fprintf(stdout, "starting binding port on server side ...\n");
         // bind TCP port for data exchange
@@ -166,16 +173,23 @@ using namespace rdma;
 
 }
 
+    void* connect_thread_func(void *args){
+        param_t *param = (param_t *) args;
+        param->sock_ptr->inner_connect(param->addr);
+}
+
     int socket::connect( const char *addr ){
 
         fprintf(stdout, "running connect function in the background\n");
-        pthread_create( &connect_thread, NULL, std::bind(&socket::inner_connect, this), (void *) addr);
+        param_t param;
+        param.addr = addr;
+        param.sock_ptr = this;
+        pthread_create( &connect_thread, NULL, connect_thread_func, (void *) param);
         return 0;
-    }
+}
 
-    void* socket::inner_connect( void* argv ){
+    void socket::inner_connect( char *addr ){
 
-        char * addr = (char *) argv;
         fprintf(stdout, "starting connecting to the remote side ...\n");
         char* ip_addr;
         int connect_port;

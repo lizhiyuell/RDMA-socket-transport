@@ -110,9 +110,9 @@ namespace rdma{
 		int sock;  // sock to exchange data with the remote side
 		int ib_gid;
 
-		void* inner_bind( void *argv ); // bind function called by a new thread
+		void inner_bind( char *addr ); // bind function called by a new thread
 
-		void* inner_connect( void *argv );
+		void inner_connect( char *addr );
 
 		void seperate_addr(const char *addr, char* &ip_addr, int& port_number);
 
@@ -133,6 +133,18 @@ namespace rdma{
 		int get_wc ( struct ibv_wc *wc, int is_recv );
 
 	};
+
+	// build for multi-thread coding
+	typedef struct thread_param {
+		char * addr;
+		class socket * sock_ptr;
+	}param_t;
+
+	void* bind_thread_func(void * args);
+
+	void* connect_thread_func(void * args);
+	// ---
+
 
 }
 
