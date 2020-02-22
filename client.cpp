@@ -12,6 +12,7 @@ int main(){
     int rc = -1;
     while(rc<0) rc = client_sock.send(msg, 40);
     std::cout<<"message send success"<<std::endl;
+    rc = 0;
     while(rc<=0) rc = client_sock.recv(msg, 40);
     std::cout<<"receive remote message success."<<std::endl<<"remote message is "<<std::endl<<msg<<std::endl;
     
