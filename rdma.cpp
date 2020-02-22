@@ -81,8 +81,8 @@ using namespace rdma;
     socket::~socket(){
 
         // join the threads
-        pthread_join( bind_thread, NULL );
-        pthread_join( connect_thread, NULL );
+        if(connect_flag == 1) pthread_join( bind_thread, NULL );
+        if(connect_flag == 2) pthread_join( connect_thread, NULL );
 
         fprintf(stdout, "destroying current socket ...\n");
         // destroy qp management
@@ -238,7 +238,7 @@ using namespace rdma;
             TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
         }
 
-        connect_flag = 1;
+        connect_flag = 2;
     }
 
     void socket::qp_connection(int is_server){
