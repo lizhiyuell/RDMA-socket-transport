@@ -494,7 +494,7 @@ using namespace rdma;
     int socket::send(const void *buf, size_t len){  // ok
 
         if(connect_flag == 0) return -1;
-        fprintf(stdout, "start to send message: %s", (char*) buf);
+        fprintf(stdout, "[Debug] the message to send is: %s\n", (char*) buf);
         struct ibv_send_wr swr, *sbad_wr = NULL;
         struct ibv_sge sge;
         struct ibv_cq *cq;
