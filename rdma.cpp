@@ -57,7 +57,7 @@ using namespace rdma;
                 fprintf(stderr, "ibv_query_port on port %u failed\n", ib_port);
                 continue;
             }
-            fprintf(stderr, "%s phy %d\n", ibv_get_device_name(dev_list[device_index]), rrdma->s_ctx->port_attr.phys_state);
+            // fprintf(stderr, "%s phy %d\n", ibv_get_device_name(dev_list[device_index]), rrdma->s_ctx->port_attr.phys_state);
             if( rrdma->s_ctx->port_attr.state == IBV_PORT_ACTIVE ){
                 break;
             }
@@ -154,7 +154,7 @@ using namespace rdma;
         memcpy( &rrdma->memgt->peer_mr, rrdma->memgt->rdma_recv_region, sizeof(struct ibv_mr) );
         // printf("peer add: %p length: %d\n", rrdma->memgt->peer_mr.addr, rrdma->memgt->peer_mr.length);
 
-        printf("bind port success with remote side\n");
+        // printf("bind port success with remote side\n");
         // add additional recv
         for( int i = 0; i < 10; i ++ ){
             struct ibv_recv_wr wr, *bad_wr = NULL;
@@ -220,7 +220,7 @@ using namespace rdma;
         memcpy( rrdma->memgt->rdma_send_region, rrdma->memgt->rdma_recv_mr, sizeof(struct ibv_mr) );
         post_send( 50, sizeof(struct ibv_mr), 0 );
         int ss = get_wc( &wc, 0 );  // problem exists here.
-        printf("connect port success with remote side\n");
+        // printf("connect port success with remote side\n");
         // add additional recv
         for( int i = 0; i < 10; i ++ ){
             struct ibv_recv_wr wr, *bad_wr = NULL;
