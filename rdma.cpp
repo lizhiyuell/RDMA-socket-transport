@@ -11,7 +11,7 @@ using namespace rdma;
     socket::socket(int gid){
 
         connect_flag = 0;
-        fprintf(stdout, "starting a new socket ...\n");
+        // fprintf(stdout, "starting a new socket ...\n");
         rrdma = (rdma_m*) malloc( sizeof(rdma_m) );
         rrdma->s_ctx = ( struct connection * )malloc( sizeof( struct connection ) );
         rrdma->memgt = (struct memory_management *) malloc(sizeof( struct memory_management ));
@@ -39,7 +39,7 @@ using namespace rdma;
             assert(false);
         }
 
-        fprintf(stdout, "found %d device(s)\n", num_devices);
+        // fprintf(stdout, "found %d device(s)\n", num_devices);
     
         int device_index;
         for (device_index = 0; device_index < num_devices; device_index ++) {
@@ -84,7 +84,7 @@ using namespace rdma;
         if(connect_flag == 1) pthread_join( bind_thread, NULL );
         if(connect_flag == 2) pthread_join( connect_thread, NULL );
 
-        fprintf(stdout, "destroying current socket ...\n");
+        // fprintf(stdout, "destroying current socket ...\n");
         // destroy qp management
         ibv_destroy_qp(rrdma->qp);
         
@@ -114,7 +114,7 @@ using namespace rdma;
 
     int socket::bind( const char *addr ){
 
-        fprintf(stdout, "running bind function in the background\n");
+        // fprintf(stdout, "running bind function in the background\n");
         this->param_bind.addr = addr;
         this->param_bind.sock_ptr = this;
         pthread_create( &bind_thread, NULL, rdma::bind_thread_func, (void *) &this->param_bind);
@@ -123,14 +123,13 @@ using namespace rdma;
 
     void socket::inner_bind( const char *addr ){
 
-        fprintf(stdout, "starting binding port on server side ...\n");
+        // fprintf(stdout, "starting binding port on server side ...\n");
         // bind TCP port for data exchange
         char* ip_addr;
         int bind_port;
 
         // before seperate addr
         seperate_addr(addr, ip_addr, bind_port);
-        fprintf(stdout, "[Debug] After seperate function\n");
         free(ip_addr);
         ip_addr = NULL;
 
@@ -142,7 +141,7 @@ using namespace rdma;
             fprintf(stderr, "failed to establish TCP connection with client on port %d\n", bind_port);
             assert(false);
         }
-        fprintf(stdout, "TCP connection was established\n");
+        // fprintf(stdout, "TCP connection was established\n");
 
         qp_connection(1);
 
@@ -182,7 +181,7 @@ using namespace rdma;
 
     int socket::connect( const char *addr ){
 
-        fprintf(stdout, "running connect function in the background\n");
+        // fprintf(stdout, "running connect function in the background\n");
         this->param_connect.addr = addr;
         this->param_connect.sock_ptr = this;
         pthread_create( &connect_thread, NULL, rdma::connect_thread_func, (void *) &this->param_connect);
@@ -191,7 +190,7 @@ using namespace rdma;
 
     void socket::inner_connect( const char *addr ){
 
-        fprintf(stdout, "starting connecting to the remote side ...\n");
+        // fprintf(stdout, "starting connecting to the remote side ...\n");
         char* ip_addr;
         int connect_port;
         seperate_addr(addr, ip_addr, connect_port);
@@ -200,7 +199,7 @@ using namespace rdma;
         while (1) {
             sock = sock_client_connect(ip_addr, connect_port);
             if (sock>=0) break;
-            fprintf(stdout, "failed to establish TCP connection to server %s, port %d. Try another time ...\n", ip_addr, connect_port);
+            // fprintf(stdout, "failed to establish TCP connection to server %s, port %d. Try another time ...\n", ip_addr, connect_port);
             sleep(3);
             connect_count ++;
             if(connect_count >= 10){
@@ -208,7 +207,7 @@ using namespace rdma;
                 assert(false);
             }
         }
-        fprintf(stdout, "TCP connection was established\n");
+        // fprintf(stdout, "TCP connection was established\n");
         free(ip_addr);
         ip_addr = NULL;
 
@@ -243,7 +242,7 @@ using namespace rdma;
 
     void socket::qp_connection(int is_server){
 
-        fprintf(stdout, "starting qp connection ...\n");
+        // fprintf(stdout, "starting qp connection ...\n");
         // build_context
         rrdma->s_ctx->pd = ibv_alloc_pd(rrdma->s_ctx->ctx);
         TEST_Z(rrdma->s_ctx->pd);
@@ -328,7 +327,7 @@ using namespace rdma;
                 assert(false);
             }
 
-            fprintf(stdout, "QP state was change to RTS\n");
+            // fprintf(stdout, "QP state was change to RTS\n");
         }
         // -----------------------------------
         /* sync to make sure that both sides are in states that they can connect to prevent packet loose */
@@ -494,7 +493,7 @@ using namespace rdma;
     int socket::send(const void *buf, size_t len){  // ok
 
         if(connect_flag == 0) return -1;
-        fprintf(stdout, "[Debug] the message to send is: %s\n", (char*) buf);
+        // fprintf(stdout, "[Debug] the message to send is: %s\n", (char*) buf);
         struct ibv_send_wr swr, *sbad_wr = NULL;
         struct ibv_sge sge;
         struct ibv_cq *cq;
@@ -570,11 +569,9 @@ using namespace rdma;
         int i=0;
         char temp_str[20];
         // initialize
-        fprintf(stdout, "[func] db 1\n");
         // for(int i=0;i<20;i++) temp_str[i]='\0';
         // fprintf(stdout, "[func] db 2\n");
         ip_addr = (char*) malloc(20);
-        fprintf(stdout, "[func] db 3\n");
         while(addr[i]!='\0'){
             if(addr[i]=='/'){
                 i+=2;
