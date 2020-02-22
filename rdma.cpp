@@ -57,7 +57,7 @@ using namespace rdma;
                 fprintf(stderr, "ibv_query_port on port %u failed\n", ib_port);
                 continue;
             }
-            // fprintf(stderr, "%s phy %d\n", ibv_get_device_name(dev_list[device_index]), rrdma->s_ctx->port_attr.phys_state);
+            // fprintf(stdout, "%s phy %d\n", ibv_get_device_name(dev_list[device_index]), rrdma->s_ctx->port_attr.phys_state);
             if( rrdma->s_ctx->port_attr.state == IBV_PORT_ACTIVE ){
                 break;
             }
