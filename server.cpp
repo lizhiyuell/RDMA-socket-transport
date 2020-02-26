@@ -4,14 +4,14 @@
 int main(){
 
     std::cout<<"This is the server side"<<std::endl;
-    char local_addr1[40] = "tcp://172.23.12.124:8888";
-    char local_addr2[40] = "tcp://172.23.12.124:4444";
+    char local_addr1[40] = "tcp://172.23.12.127:17002";
+    char local_addr2[40] = "tcp://172.23.12.127:17006";
     char msg1[40] = "This is the server side1";
     char msg2[40] = "This is the server side2";
     char recv_msg1[40];
     char recv_msg2[40];
-    class rdma::socket server_sock1 = rdma::socket(3);
-    class rdma::socket server_sock2 = rdma::socket(3);
+    class rdma::socket server_sock1 = rdma::socket(5);
+    class rdma::socket server_sock2 = rdma::socket(5);
     server_sock1.bind(local_addr1);
     server_sock2.bind(local_addr2);
     std::cout<<"bind port success"<<std::endl;

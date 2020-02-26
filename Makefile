@@ -1,5 +1,5 @@
 CC := g++
-CPPFLAGS := -g
+CPPFLAGS := -g -std=c++11
 LDLIBS := ${LDLIBS} -libverbs -lpthread -lrt
 
 .PHONY: clean

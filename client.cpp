@@ -4,12 +4,12 @@
 int main(){
 
     std::cout<<"This is the client side"<<std::endl;
-    char remote_addr1[40] = "tcp://172.23.12.124:8888";
-    char remote_addr2[40] = "tcp://172.23.12.124:4444";
+    char remote_addr1[40] = "tcp://172.23.12.127:17002";
+    char remote_addr2[40] = "tcp://172.23.12.127:17006";
     char msg1[40] = "This is the client side1";
     char msg2[40] = "This is the client side2";
-    class rdma::socket client_sock1 = rdma::socket(5);
-    class rdma::socket client_sock2 = rdma::socket(5);
+    class rdma::socket client_sock1 = rdma::socket(3);
+    class rdma::socket client_sock2 = rdma::socket(3);
     client_sock1.connect(remote_addr1);
     client_sock2.connect(remote_addr2);
     // sleep(5);
