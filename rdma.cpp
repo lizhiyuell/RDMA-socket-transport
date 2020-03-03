@@ -531,7 +531,7 @@ using namespace rdma;
         cq = rrdma->s_ctx->recv_cq;
 
         if(connect_flag == 0) return 0;
-
+		int recv_len = 0;
         int flag=1;
         while(flag){
             int num = ibv_poll_cq(cq, 10, wc_array);
@@ -541,7 +541,8 @@ using namespace rdma;
 				if( wc->opcode == IBV_WC_RECV || wc->opcode == IBV_WC_RECV_RDMA_WITH_IMM ){
 					if( wc->status != IBV_WC_SUCCESS ){
 						printf("recv error %d!\n", 0);
-					}				
+					}
+					recv_len = wc->byte_len;
 					flag = 0;
 					struct ibv_recv_wr wr, *bad_wr = NULL;
 					struct ibv_sge sge;
@@ -560,9 +561,9 @@ using namespace rdma;
 			}
         }
 
-        memcpy(buf, rrdma->memgt->rdma_recv_region, len);
+        memcpy(buf, rrdma->memgt->rdma_recv_region, recv_len);
 
-        return len;
+        return recv_len;
     }
 
     void socket::seperate_addr(const char *addr,  char* &ip_addr, int& port_number){

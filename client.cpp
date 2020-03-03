@@ -15,7 +15,7 @@ int main(){
     // sleep(5);
     int rc;
     rc = -1;
-    while(rc<0) rc = client_sock1.send(msg1, 40);
+    while(rc<0) rc = client_sock1.send(msg1, 38);
     rc = -1;
     while(rc<0) rc = client_sock2.send(msg2, 40);
     std::cout<<"message send success"<<std::endl;
@@ -25,6 +25,5 @@ int main(){
     while(rc<=0) rc = client_sock2.recv(msg2, 40);
     std::cout<<"receive remote message success."<<std::endl<<"remote message is "<<std::endl<<msg1<<std::endl;
     std::cout<<"receive remote message success."<<std::endl<<"remote message is "<<std::endl<<msg2<<std::endl;
-
     return 0;
 }
