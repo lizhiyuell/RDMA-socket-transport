@@ -16,6 +16,7 @@ int main(){
     // server_sock2.bind(local_addr2);
     std::cout<<"bind port success"<<std::endl;
     sleep(10);
+    std::cout<<"sleep finish!"<<std::endl;
     int rc = 0;
     while(rc<=0) rc = server_sock1.recv(recv_msg1, 40);
     // rc = 0;

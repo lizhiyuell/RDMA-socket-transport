@@ -19,6 +19,7 @@ int main(){
         rc = client_sock1.send(msg1, 40);
         std::cout<<"rc is "<<rc<<std::endl;
     }
+    std::cout<<"send success!"<<std::endl;
     // rc = -1;
     // while(rc<0) rc = client_sock2.send(msg2, 40);
     std::cout<<"message send success"<<std::endl;
