@@ -532,33 +532,30 @@ using namespace rdma;
 
         if(connect_flag == 0) return 0;
 		int recv_len = 0;
-        int flag=1;
-        while(flag){
-            int num = ibv_poll_cq(cq, 1, wc_array);
-            if( num<0 ) continue;
-            for( int k = 0; k < num; k ++ ){
-				wc = &wc_array[k];
-				if( wc->opcode == IBV_WC_RECV || wc->opcode == IBV_WC_RECV_RDMA_WITH_IMM ){
-					if( wc->status != IBV_WC_SUCCESS ){
-						printf("recv error %d!\n", 0);
-					}
-					recv_len = wc->byte_len;
-					flag = 0;
-					struct ibv_recv_wr wr, *bad_wr = NULL;
-					struct ibv_sge sge;
-					wr.wr_id = wc->wr_id;
-					wr.next = NULL;
-					wr.sg_list = &sge;
-					wr.num_sge = 1;
+        int num = ibv_poll_cq(cq, 1, wc_array);
+        if( num<=0 ) return 0;
+        for( int k = 0; k < num; k ++ ){
+            wc = &wc_array[k];
+            if( wc->opcode == IBV_WC_RECV || wc->opcode == IBV_WC_RECV_RDMA_WITH_IMM ){
+                if( wc->status != IBV_WC_SUCCESS ){
+                    printf("recv error %d!\n", 0);
+                }
+                recv_len = wc->byte_len;
+                flag = 0;
+                struct ibv_recv_wr wr, *bad_wr = NULL;
+                struct ibv_sge sge;
+                wr.wr_id = wc->wr_id;
+                wr.next = NULL;
+                wr.sg_list = &sge;
+                wr.num_sge = 1;
 
-					sge.addr = (uintptr_t)rrdma->memgt->rdma_recv_region;
-					sge.length = BufferSize;
-					sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
+                sge.addr = (uintptr_t)rrdma->memgt->rdma_recv_region;
+                sge.length = BufferSize;
+                sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
-					TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
-					break;
-				}
-			}
+                TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
+                break;
+            }
         }
 
         memcpy(buf, rrdma->memgt->rdma_recv_region, recv_len);
