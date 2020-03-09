@@ -556,7 +556,7 @@ using namespace rdma;
                 break;
             }
         }
-
+        fprintf(stdout, "poll information success!\n");
         memcpy(buf, rrdma->memgt->rdma_recv_region, recv_len);
 
         return recv_len;
