@@ -534,7 +534,7 @@ using namespace rdma;
 		int recv_len = 0;
         int flag=1;
         while(flag){
-            int num = ibv_poll_cq(cq, 10, wc_array);
+            int num = ibv_poll_cq(cq, 1, wc_array);
             if( num<0 ) continue;
             for( int k = 0; k < num; k ++ ){
 				wc = &wc_array[k];
