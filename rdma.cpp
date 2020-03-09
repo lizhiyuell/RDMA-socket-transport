@@ -532,8 +532,9 @@ using namespace rdma;
 
         if(connect_flag == 0) return 0;
 		int recv_len = 0;
-        int num = ibv_poll_cq(cq, 1, wc_array);
+        int num = ibv_poll_cq(cq, 10, wc_array);
         if( num<=0 ) return 0;
+
         for( int k = 0; k < num; k ++ ){
             wc = &wc_array[k];
             if( wc->opcode == IBV_WC_RECV || wc->opcode == IBV_WC_RECV_RDMA_WITH_IMM ){
@@ -553,7 +554,7 @@ using namespace rdma;
                 sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
                 TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
-                break;
+                fprintf(stdout, "[Debug] remore msg is %s\n", rrdma->memgt->rdma_recv_region);
             }
         }
         fprintf(stdout, "poll information success!\n");
