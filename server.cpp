@@ -19,6 +19,7 @@ int main(){
     while(rc<0) rc = server_sock1.send(msg1, 40);
     rc = -1;
     while(rc<0) rc = server_sock1.send(msg2, 40);
+    sleep(10);
     rc = -1;
     while(rc<0) rc = server_sock1.send(msg3, 40);
     rc = -1;
