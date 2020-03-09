@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <functional>
+#include <string.h>
 
 // RDMA definition
 #define ib_port 1
