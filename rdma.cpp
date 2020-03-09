@@ -541,7 +541,6 @@ using namespace rdma;
                     printf("recv error %d!\n", 0);
                 }
                 recv_len = wc->byte_len;
-                flag = 0;
                 struct ibv_recv_wr wr, *bad_wr = NULL;
                 struct ibv_sge sge;
                 wr.wr_id = wc->wr_id;
