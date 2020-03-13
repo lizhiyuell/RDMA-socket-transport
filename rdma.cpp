@@ -599,7 +599,7 @@ if (rc) {
                 sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
                 TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
-                memcpy((uintptr_t)buf + k*recv_len, rrdma->memgt->rdma_recv_region + index*BufferSize, recv_len);  // can only be used for fixed len recv!
+                memcpy((char*)buf + k*recv_len, rrdma->memgt->rdma_recv_region + index*BufferSize, recv_len);  // can only be used for fixed len recv!
             }
         }
         return num;
