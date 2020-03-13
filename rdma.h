@@ -14,10 +14,6 @@
 #include <map>
 #include "semaphore.h"
 
-
-
-#include "config.h"
-
 // RDMA definition
 #define ib_port 1
 // #define ib_gid 3
