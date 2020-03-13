@@ -583,7 +583,7 @@ if (rc) {
                     printf("recv error %d!\n", 0);
                 }
                 recv_len = wc->byte_len;
-                fprintf(stdout, "[Info] recv success! with byte len is %d\n", recv_len);
+                fprintf(stdout, "[Info] recv success! with number is %d\n", num);
                 // fprintf(stdout, "[Debug] In func recv: point 1\n");	
                 // flag = 0;
                 struct ibv_recv_wr wr, *bad_wr = NULL;
@@ -599,7 +599,7 @@ if (rc) {
                 sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
                 TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
-                memcpy((char*)buf + k*recv_len, rrdma->memgt->rdma_recv_region + index*BufferSize, recv_len);  // can only be used for fixed len recv!
+                memcpy((char*)buf + k*BufferSize, rrdma->memgt->rdma_recv_region + index*BufferSize, recv_len);  // can only be used for fixed len recv!
             }
         }
         return num;
