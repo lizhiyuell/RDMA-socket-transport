@@ -20,6 +20,7 @@ int main(){
     sleep(5);
     while(rc<=0) rc = client_sock1.recv(msg1, BufferSize, 0);
     for(int i=0;i<rc;i++){
+        fprintf(stdout, "The %d th:\n", i);
         memcpy(recv_buf, msg1 + i*BufferSize, BufferSize);
         std::cout<<"receive remote message success."<<std::endl<<"remote message is "<<std::endl<<recv_buf<<std::endl;
     }
