@@ -8,7 +8,9 @@
 
 using namespace rdma;
 
-    socket::socket(int gid){
+    socket::socket(uint64_t gid){
+
+        fprintf(stdout, "[Info] Begin a RDMA socket with gid number %d\n", gid);
 
         connect_flag = 0;
         // fprintf(stdout, "starting a new socket ...\n");
@@ -75,11 +77,20 @@ using namespace rdma;
             assert(false);
         }
         rrdma->s_ctx->gidIndex = gid;
+        // fprintf(stdout, "before socket build finish\n");
+        // initialize the stack
+        for(int ii=0;ii<MAX_CQ_NUM;ii++){
+            send_poll_stack.push(MAX_CQ_NUM-ii);  // inverse order, making 0 on the top
+        }
+        // init mutex
+        sem_init(&(rrdma->memgt->mutex_send), 0, 1);
+        // fprintf(stdout, "socket build finish\n");
     }
 
 
     socket::~socket(){
 
+        fprintf(stdout, "[Info] The end of %s:%d !!\n", this->sock_addr, this->sock_port);
         // join the threads
         if(connect_flag == 1) pthread_join( bind_thread, NULL );
         if(connect_flag == 2) pthread_join( connect_thread, NULL );
@@ -89,6 +100,8 @@ using namespace rdma;
         ibv_destroy_qp(rrdma->qp);
         
         // destroy memory management
+        // free(rrdma->memgt->send_poll_stack); rrdma->memgt->send_poll_stack = NULL;
+        // free(rrdma->memgt->recv_poll_stack); rrdma->memgt->recv_poll_stack = NULL;
 
         TEST_NZ(ibv_dereg_mr(rrdma->memgt->rdma_send_mr));
         free(rrdma->memgt->rdma_send_region);  rrdma->memgt->rdma_send_region = NULL;
@@ -104,7 +117,6 @@ using namespace rdma;
 	    ibv_close_device(rrdma->s_ctx->ctx);
         free(rrdma->s_ctx);
         free(rrdma);
-
     }
 
     void* rdma::bind_thread_func(void *args){
@@ -115,7 +127,8 @@ using namespace rdma;
     int socket::bind( const char *addr ){
 
         // fprintf(stdout, "running bind function in the background\n");
-        this->param_bind.addr = addr;
+        strcpy(ip_addr_temp, addr);
+        this->param_bind.addr = ip_addr_temp;
         this->param_bind.sock_ptr = this;
         pthread_create( &bind_thread, NULL, rdma::bind_thread_func, (void *) &this->param_bind);
         return 0;
@@ -123,18 +136,20 @@ using namespace rdma;
 
     void socket::inner_bind( const char *addr ){
 
-        // fprintf(stdout, "starting binding port on server side ...\n");
         // bind TCP port for data exchange
         char* ip_addr;
         int bind_port;
 
         // before seperate addr
+        // fprintf(stdout, "[Debug] before seperate func, %s\n", addr);
         seperate_addr(addr, ip_addr, bind_port);
-        free(ip_addr);
-        ip_addr = NULL;
-
+        sock_port = bind_port;
+        strcpy(sock_addr, ip_addr);
+        // fprintf(stdout, "[Debug] in inner func of %s: after sperate addr\n", addr);
         // fprintf(stdout, "seperate port number is %d\n", bind_port);
+        // fprintf(stdout, "[Debug] in inner func of %s: bind port is %d\n", addr, bind_port);
         sock = sock_daemon_connect(bind_port);
+        // fprintf(stdout, "[Debug] in inner func of %s: after TCP bind\n", addr);
         // fprintf(stdout, "sock number is %d\n", sock);
 
         if (sock < 0) {
@@ -144,27 +159,29 @@ using namespace rdma;
         // fprintf(stdout, "TCP connection was established\n");
 
         qp_connection(1);
-
+        fprintf(stdout, "[Debug] in inner func of %s: after qp connection\n", addr);
         struct ibv_wc wc;
         memcpy(rrdma->memgt->rdma_send_region, rrdma->memgt->rdma_recv_mr, sizeof(struct ibv_mr));
-        post_send( 50, sizeof(struct ibv_mr), 0 );  
-        int ss = get_wc( &wc, 0 );
+        post_send( 50, sizeof(struct ibv_mr), 0 ); 
+        // fprintf(stdout, "[Debug] in inner func of %s: after send\n", addr); 
+        get_wc( &wc, 0 );
         post_recv( 20, sizeof(struct ibv_mr));
-        ss = get_wc( &wc, 1 );
+        // fprintf(stdout, "[Debug] in inner func of %s: after recv\n", addr);
+        get_wc( &wc, 1 );
         memcpy( &rrdma->memgt->peer_mr, rrdma->memgt->rdma_recv_region, sizeof(struct ibv_mr) );
         // printf("peer add: %p length: %d\n", rrdma->memgt->peer_mr.addr, rrdma->memgt->peer_mr.length);
 
         // printf("bind port success with remote side\n");
         // add additional recv
-        for( int i = 0; i < 10; i ++ ){
+        for( int i = 0; i < MAX_CQ_NUM; i ++ ){
             struct ibv_recv_wr wr, *bad_wr = NULL;
             struct ibv_sge sge;
             wr.wr_id = i;
             wr.next = NULL;
             wr.sg_list = &sge;
-            wr.num_sge = 1;
+            wr.num_sge = 1; 
 
-            sge.addr = (uintptr_t)rrdma->memgt->rdma_recv_region;		
+            sge.addr = (uintptr_t)rrdma->memgt->rdma_recv_region + i * BufferSize;		
             sge.length = BufferSize;
             sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
@@ -172,6 +189,10 @@ using namespace rdma;
         }
 
         connect_flag = 1;
+        fprintf(stdout, "[Debug] bind finish for %s:%d\n", ip_addr, bind_port);
+        
+        free(ip_addr);
+        ip_addr = NULL;
 }
 
     void* rdma::connect_thread_func(void *args){
@@ -182,7 +203,10 @@ using namespace rdma;
     int socket::connect( const char *addr ){
 
         // fprintf(stdout, "running connect function in the background\n");
-        this->param_connect.addr = addr;
+        // fprintf(stdout, "[Debug] In connect func, %s\n", addr);
+        strcpy(ip_addr_temp, addr);
+        // fprintf(stdout, "[Debug] After copy, %s\n", ip_addr_temp);
+        this->param_connect.addr = ip_addr_temp;
         this->param_connect.sock_ptr = this;
         pthread_create( &connect_thread, NULL, rdma::connect_thread_func, (void *) &this->param_connect);
         return 0;
@@ -191,46 +215,50 @@ using namespace rdma;
     void socket::inner_connect( const char *addr ){
 
         // fprintf(stdout, "starting connecting to the remote side ...\n");
+        // fprintf(stdout, "[Debug] in inner func: starting connecting port on %s\n", addr);
         char* ip_addr;
         int connect_port;
+        // fprintf(stdout, "[Debug] before seperate func, %s\n", addr);
         seperate_addr(addr, ip_addr, connect_port);
-        int connect_count = 0;
+        sock_port = connect_port;
+        strcpy(sock_addr, ip_addr);
+        // int connect_count = 0;
         sock = -1;
+        // fprintf(stdout, "[Debug] in inner_connect of %s, ip and port are: %s, %d\n", addr, ip_addr, connect_port);
         while (1) {
             sock = sock_client_connect(ip_addr, connect_port);
             if (sock>=0) break;
             // fprintf(stdout, "failed to establish TCP connection to server %s, port %d. Try another time ...\n", ip_addr, connect_port);
-            sleep(3);
-            connect_count ++;
-            if(connect_count >= 10){
-                fprintf(stderr, "failed to establish TCP connection with client on port %d\n", connect_port);
-                assert(false);
-            }
+            usleep(10);
+            // connect_count ++;
+            // if(connect_count >= 10){
+            //     fprintf(stderr, "failed to establish TCP connection with client on port %d\n", connect_port);
+            //     assert(false);
+            // }
         }
         // fprintf(stdout, "TCP connection was established\n");
-        free(ip_addr);
-        ip_addr = NULL;
+        
 
         qp_connection(0);
 
         struct ibv_wc wc;
         post_recv( 20, sizeof(struct ibv_mr)); 
-        int tmp = get_wc( &wc, 1 ); 
+        get_wc( &wc, 1 ); 
         memcpy( &rrdma->memgt->peer_mr, rrdma->memgt->rdma_recv_region, sizeof(struct ibv_mr) );
         memcpy( rrdma->memgt->rdma_send_region, rrdma->memgt->rdma_recv_mr, sizeof(struct ibv_mr) );
         post_send( 50, sizeof(struct ibv_mr), 0 );
-        int ss = get_wc( &wc, 0 );  // problem exists here.
+        get_wc( &wc, 0 );  // problem exists here.
         // printf("connect port success with remote side\n");
         // add additional recv
-        for( int i = 0; i < 10; i ++ ){
+        for( int i = 0; i < MAX_CQ_NUM; i ++ ){
             struct ibv_recv_wr wr, *bad_wr = NULL;
             struct ibv_sge sge;
             wr.wr_id = i;
             wr.next = NULL;
             wr.sg_list = &sge;
-            wr.num_sge = 1;
+            wr.num_sge = 1; 
 
-            sge.addr = (uintptr_t)rrdma->memgt->rdma_recv_region;		
+            sge.addr = (uintptr_t)rrdma->memgt->rdma_recv_region + ib_port * BufferSize;		
             sge.length = BufferSize;
             sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
@@ -238,6 +266,9 @@ using namespace rdma;
         }
 
         connect_flag = 2;
+        fprintf(stdout, "[Debug] connect finish for %s:%d\n", ip_addr, connect_port);
+        free(ip_addr);
+        ip_addr = NULL;
     }
 
     void socket::qp_connection(int is_server){
@@ -263,12 +294,13 @@ using namespace rdma;
                 TEST_NZ(ibv_req_notify_cq(s_ctx->recv_cq, 0));
         #endif
         // allocate memory
-        rrdma->memgt->rdma_recv_region = (char *) malloc(BufferSize);
-        rrdma->memgt->rdma_send_region = (char *) malloc(BufferSize);
+        rrdma->memgt->rdma_recv_region = (char *) malloc(BufferSize * MAX_CQ_NUM);
+        rrdma->memgt->rdma_send_region = (char *) malloc(BufferSize * MAX_CQ_NUM);
         // register memory for RDMA
-        rrdma->memgt->rdma_recv_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_recv_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ);
+        rrdma->memgt->rdma_recv_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_recv_region, BufferSize * MAX_CQ_NUM, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ);
         TEST_Z( rrdma->memgt->rdma_recv_mr );
-        rrdma->memgt->rdma_send_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_send_region, BufferSize, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ);
+        rrdma->memgt->rdma_send_mr = ibv_reg_mr( rrdma->s_ctx->pd, rrdma->memgt->rdma_send_region, BufferSize * MAX_CQ_NUM, IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ);
+        TEST_Z( rrdma->memgt->rdma_send_mr );
 
         // set qp attribution
         struct ibv_qp_init_attr *qp_attr;
@@ -359,7 +391,7 @@ using namespace rdma;
 	flags = IBV_QP_STATE | IBV_QP_PKEY_INDEX | IBV_QP_PORT | IBV_QP_ACCESS_FLAGS;
 
 	rc = ibv_modify_qp(qp, &attr, flags);
-	if (rc) {
+if (rc) {
 		fprintf(stderr, "failed to modify QP state to INIT\n");
 		return rc;
 	}
@@ -387,8 +419,7 @@ using namespace rdma;
 
         flags = IBV_QP_STATE | IBV_QP_AV | IBV_QP_PATH_MTU | IBV_QP_DEST_QPN | 
             IBV_QP_RQ_PSN | IBV_QP_MAX_DEST_RD_ATOMIC | IBV_QP_MIN_RNR_TIMER;
-
-        rc = ibv_modify_qp(qp, &attr, flags);
+      rc = ibv_modify_qp(qp, &attr, flags);
         if (rc) {
             fprintf(stderr, "failed to modify QP state to RTR %d \n", rc);
             printf("%s\n", strerror(rc));
@@ -461,7 +492,7 @@ using namespace rdma;
         wr.num_sge = 1;
         // 用来存放数据有关的信息，如地址、长度以及钥匙
         // 这样来看这个rec_buffer应该是本地用来存储对方内存位置信息的内存
-        sge.addr = (uintptr_t)rrdma->memgt->rdma_recv_region;
+        sge.addr = (uintptr_t)rrdma->memgt->rdma_recv_region;  // before connection established, using 0 buffer is OK
         sge.length = recv_size;
         sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
         
@@ -490,14 +521,12 @@ using namespace rdma;
         TEST_NZ(ibv_post_send(rrdma->qp, &wr, &bad_wr));
     }
 
-    int socket::send(const void *buf, size_t len){  // ok
+    int socket::send(const void *buf, size_t len, int _flag){  // ok
 
         if(connect_flag == 0) return -1;
-        // fprintf(stdout, "[Debug] the message to send is: %s\n", (char*) buf);
         struct ibv_send_wr swr, *sbad_wr = NULL;
         struct ibv_sge sge;
         struct ibv_cq *cq;
-
         memset(&swr, 0, sizeof(swr));
         swr.wr_id = 0;
 		swr.opcode = IBV_WR_RDMA_WRITE_WITH_IMM;
@@ -507,34 +536,46 @@ using namespace rdma;
 		swr.wr.rdma.remote_addr = (uintptr_t)rrdma->memgt->peer_mr.addr;
 		swr.wr.rdma.rkey = rrdma->memgt->peer_mr.rkey;
 
-        memcpy(rrdma->memgt->rdma_send_region, buf, len);
-        sge.addr = (uintptr_t)rrdma->memgt->rdma_send_region;
+        int index;
+        sem_wait(&(rrdma->memgt->mutex_send));
+        index = send_poll_stack.top();
+        send_poll_stack.pop();
+        sem_post(&(rrdma->memgt->mutex_send));
+
+        memcpy(rrdma->memgt->rdma_send_region + index*BufferSize, buf, len);
+        sge.addr = (uintptr_t)rrdma->memgt->rdma_send_region + index*BufferSize;
 		sge.length = len;
 		sge.lkey = rrdma->memgt->rdma_send_mr->lkey;
 
-        TEST_NZ(ibv_post_send(rrdma->qp, &swr, &sbad_wr));
+        int re = ibv_post_send(rrdma->qp, &swr, &sbad_wr);  // modify to a non-blocked manner, passing failure to upper level
 
-        // test if rejected
-        // if(sbad_wr != NULL){
-        //     fprintf(stdout, "[Error] The wr is rejected!\n");
-        // }
+        sem_wait(&(rrdma->memgt->mutex_send));
+        send_poll_stack.push(index);
+        sem_post(&(rrdma->memgt->mutex_send));
 
-        return len;
+        if(re == 0) return len;
+        else return re;
     }
 
-    int socket::recv(void *buf,  size_t len){  // ok
+    int socket::recv(void *buf,  size_t len, int _flag){  // ok
         struct ibv_wc* wc;
         struct ibv_wc* wc_array;
         struct ibv_cq *cq;
 
         wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * 20 );
         cq = rrdma->s_ctx->recv_cq;
+        // fprintf(stdout, "[Debug] In func recv: point 0\n");	
+        if(connect_flag == 0){
+            // fprintf(stdout, "[Info] connect flag not ready yet in recv\n");
+            // sleep(1);
+            return 0;
+        }
 
-        if(connect_flag == 0) return 0;
-		int recv_len = 0;
-        int num = ibv_poll_cq(cq, 10, wc_array);
-        if( num<=0 ) return 0;
-
+        // int flag=1;
+        int recv_len = 0;
+        // while(flag){
+        int num = ibv_poll_cq(cq, MAX_CQ_NUM, wc_array);
+        if( num<=0 ) return 0; // no request yet
         for( int k = 0; k < num; k ++ ){
             wc = &wc_array[k];
             if( wc->opcode == IBV_WC_RECV || wc->opcode == IBV_WC_RECV_RDMA_WITH_IMM ){
@@ -542,30 +583,33 @@ using namespace rdma;
                     printf("recv error %d!\n", 0);
                 }
                 recv_len = wc->byte_len;
+                fprintf(stdout, "[Info] recv success! with byte len is %d\n", recv_len);
+                // fprintf(stdout, "[Debug] In func recv: point 1\n");	
+                // flag = 0;
                 struct ibv_recv_wr wr, *bad_wr = NULL;
                 struct ibv_sge sge;
                 wr.wr_id = wc->wr_id;
                 wr.next = NULL;
                 wr.sg_list = &sge;
                 wr.num_sge = 1;
+                int index = wr.wr_id;
 
-                sge.addr = (uintptr_t)rrdma->memgt->rdma_recv_region;
+                sge.addr = (uintptr_t)rrdma->memgt->rdma_recv_region + index*BufferSize;
                 sge.length = BufferSize;
                 sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
                 TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
-                fprintf(stdout, "[Debug] remore msg is %s\n", rrdma->memgt->rdma_recv_region);
+                memcpy(buf + k*recv_len, rrdma->memgt->rdma_recv_region + index*BufferSize, recv_len);  // can only be used for fixed len recv!
             }
         }
-        fprintf(stdout, "poll information success!\n");
-        memcpy(buf, rrdma->memgt->rdma_recv_region, recv_len);
-        memset(rrdma->memgt->rdma_recv_region, 0, 40);
-        return recv_len;
+        return num;
     }
 
     void socket::seperate_addr(const char *addr,  char* &ip_addr, int& port_number){
+        
+        fprintf(stdout, "starting to seperate ip addr: %s\n", addr);
         int i=0;
-        char temp_str[20];
+        char temp_str[50];
         // initialize
         // for(int i=0;i<20;i++) temp_str[i]='\0';
         // fprintf(stdout, "[func] db 2\n");

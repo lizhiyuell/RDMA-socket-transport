@@ -10,7 +10,13 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <functional>
-#include <string.h>
+#include <stack>
+#include <map>
+#include "semaphore.h"
+
+
+
+#include "config.h"
 
 // RDMA definition
 #define ib_port 1
@@ -20,7 +26,7 @@
 #define TEST_Z(x) assert(x)
 #define TEST_NZ(x) assert(!x)
 #define __polling
-#define BufferSize 4096  // send/recv  size for each node
+#define BufferSize MSG_SIZE_MAX  // send/recv  size for each node
 // RDMA definition
 
 namespace rdma{
@@ -56,10 +62,12 @@ namespace rdma{
 
 	struct ibv_mr peer_mr;
 	
-	char *rdma_send_region;
-	char *rdma_recv_region;
+	char *rdma_send_region; 
+	char *rdma_recv_region; // per-allocate multiple region( the number is  RECV_BUF_NUM) for recv
 
-	
+	// memory poll related
+	sem_t mutex_send;
+
 	};
 
 	/*
@@ -100,7 +108,7 @@ namespace rdma{
 	class socket{
 	public:
 		// initialize socket
-		socket(int gid);// finish local configuration
+		socket(uint64_t gid);// finish local configuration
 		
 		~socket();
 
@@ -108,9 +116,9 @@ namespace rdma{
 
 		int connect(const char *addr); // connect to remote port, and finish the remaining part
 
-		int send (const void *buf, size_t len);
+		int send (const void *buf, size_t len, int _flag);
 
-		int recv (void *buf, size_t len);
+		int recv (void *buf, size_t len, int _flag); // <=0 for failure. result >=0 means the number of cq polled
 
 		void inner_bind( const char *addr ); // bind function called by a new thread
 
@@ -122,6 +130,13 @@ namespace rdma{
 		pthread_t bind_thread, connect_thread;
 		int connect_flag; // a flag to show whether connection has been built. 0 for no, 1 for bind and 2 for connect
 		param_t param_bind, param_connect;
+		char ip_addr_temp[50];
+		// socket infomation
+		int sock_port;
+		char sock_addr[50];
+		// memory poll index stack
+		std::stack<int> send_poll_stack;
+
 
 		int sock;  // sock to exchange data with the remote side
 		int ib_gid;

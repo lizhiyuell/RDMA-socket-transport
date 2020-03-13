@@ -16,14 +16,14 @@ int main(){
     std::cout<<"bind port success"<<std::endl;
     int rc = 0;
     rc = -1;
-    while(rc<0) rc = server_sock1.send(msg1, 40);
+    while(rc<0) rc = server_sock1.send(msg1, 40, 0);
     rc = -1;
-    while(rc<0) rc = server_sock1.send(msg2, 40);
+    while(rc<0) rc = server_sock1.send(msg2, 40, 0);
     sleep(10);
     rc = -1;
-    while(rc<0) rc = server_sock1.send(msg3, 40);
+    while(rc<0) rc = server_sock1.send(msg3, 40, 0);
     rc = -1;
-    while(rc<0) rc = server_sock1.send(msg4, 40);
+    while(rc<0) rc = server_sock1.send(msg4, 40, 0);
     std::cout<<"message send success"<<std::endl;    
     return 0;
 }
