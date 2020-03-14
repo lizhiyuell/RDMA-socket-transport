@@ -543,7 +543,7 @@ if (rc) {
         sem_post(&(rrdma->memgt->mutex_send));
 
         memcpy(rrdma->memgt->rdma_send_region + index*BufferSize, buf, len);
-        sge.addr = (uintptr_t)rrdma->memgt->rdma_send_region + index*BufferSize;
+        sge.addr = (uintptr_t)(rrdma->memgt->rdma_send_region + index*BufferSize);
 		sge.length = len;
 		sge.lkey = rrdma->memgt->rdma_send_mr->lkey;
 
