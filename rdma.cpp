@@ -594,6 +594,7 @@ if (rc) {
                 wr.sg_list = &sge;
                 wr.num_sge = 1;
                 int index = wr.wr_id;
+                fprintf(stdout, "the index is %d\n", index);
 
                 sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + index*BufferSize);
                 sge.length = BufferSize;
