@@ -583,7 +583,7 @@ if (rc) {
                     printf("recv error %d!\n", 0);
                 }
                 recv_len = wc->byte_len;
-                fprintf(stdout, "[Info] recv success! with number is %d\n", num);
+                // fprintf(stdout, "[Info] recv success! with number is %d\n", num);
                 // fprintf(stdout, "[Debug] In func recv: point 1\n");	
                 // flag = 0;
                 struct ibv_recv_wr wr, *bad_wr = NULL;

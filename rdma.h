@@ -22,8 +22,8 @@
 #define TEST_Z(x) assert(x)
 #define TEST_NZ(x) assert(!x)
 #define __polling
-#define BufferSize 4096  // send/recv  size for each node
-#define MAX_CQ_NUM 50
+#define BufferSize 16  // send/recv  size for each node
+#define MAX_CQ_NUM 3
 // RDMA definition
 
 namespace rdma{
