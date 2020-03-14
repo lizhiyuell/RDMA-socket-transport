@@ -24,6 +24,12 @@ int main(){
         memcpy(recv_buf, msg1 + i*BufferSize, BufferSize);
         std::cout<<"receive remote message success."<<std::endl<<"remote message is "<<std::endl<<recv_buf<<std::endl;
     }
+
+    fprintf(stdout, "The msg is:\n");
+    for(int i=0;i<5*BufferSize;i++){
+        fprintf(stdout, "%c", *(msg1+i));
+    }
+    fprintf(stdout, "\n");
     
     
     
