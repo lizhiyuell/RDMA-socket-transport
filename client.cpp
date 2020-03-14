@@ -26,13 +26,10 @@ int main(){
     }
 
     fprintf(stdout, "The msg is:\n");
-    for(int i=0;i<5*BufferSize;i++){
-        fprintf(stdout, "%c", *(msg1+i));
+    for(int i=0;i<4;i++){
+        for(int j=0;j<BufferSize;j++) fprintf(stdout, "%c", *(msg1+i*BufferSize +j));
+        fprintf(stdout, "\n");
     }
-    fprintf(stdout, "\n");
-    
-    
-    
     
     return 0;
 }
