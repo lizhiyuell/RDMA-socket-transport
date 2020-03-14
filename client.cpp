@@ -17,7 +17,7 @@ int main(){
     // std::cout<<"message send success"<<std::endl;
     rc = 0;
     char recv_buf[BufferSize];
-    sleep(5);
+    // sleep(5);
     while(rc<=0) rc = client_sock1.recv(msg1, BufferSize, 0);
     for(int i=0;i<rc;i++){
         fprintf(stdout, "The %d th:\n", i);

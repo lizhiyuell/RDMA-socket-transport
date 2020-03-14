@@ -16,12 +16,15 @@ int main(){
     int rc = 0;
     rc = -1;
     while(rc<0) rc = server_sock1.send(msg1, 5, 0);
+    sleep(2);
     rc = -1;
     while(rc<0) rc = server_sock1.send(msg2, 5, 0);
     // sleep(10);
+    sleep(2);
     rc = -1;
     while(rc<0) rc = server_sock1.send(msg3, 5, 0);
     rc = -1;
+    sleep(2);
     while(rc<0) rc = server_sock1.send(msg4, 5, 0);
     std::cout<<"message send success"<<std::endl;    
     return 0;
