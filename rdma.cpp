@@ -181,7 +181,7 @@ using namespace rdma;
             wr.sg_list = &sge;
             wr.num_sge = 1; 
 
-            sge.addr = (uintptr_t)rrdma->memgt->rdma_recv_region + i * BufferSize;		
+            sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
             sge.length = BufferSize;
             sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
@@ -258,7 +258,7 @@ using namespace rdma;
             wr.sg_list = &sge;
             wr.num_sge = 1; 
 
-            sge.addr = (uintptr_t)rrdma->memgt->rdma_recv_region + i * BufferSize;		
+            sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
             sge.length = BufferSize;
             sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
@@ -595,7 +595,7 @@ if (rc) {
                 wr.num_sge = 1;
                 int index = wr.wr_id;
 
-                sge.addr = (uintptr_t)rrdma->memgt->rdma_recv_region + index*BufferSize;
+                sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + index*BufferSize);
                 sge.length = BufferSize;
                 sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
