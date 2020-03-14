@@ -576,6 +576,7 @@ if (rc) {
         // while(flag){
         int num = ibv_poll_cq(cq, MAX_CQ_NUM, wc_array);
         if( num<=0 ) return 0; // no request yet
+        fprintf(stdout, "[Info] recv success! with number is %d\n", num);
         for( int k = 0; k < num; k ++ ){
             wc = &wc_array[k];
             if( wc->opcode == IBV_WC_RECV || wc->opcode == IBV_WC_RECV_RDMA_WITH_IMM ){
@@ -601,6 +602,15 @@ if (rc) {
                 TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
                 memcpy((char*)buf + k*BufferSize, rrdma->memgt->rdma_recv_region + index*BufferSize, recv_len);  // can only be used for fixed len recv!
             }
+        }
+        fprintf(stdout, "[Debug] pring the bytes in recv_buffer\n");
+        char temp;
+        for(int i=0;i<MAX_CQ_NUM;i++){
+            fprintf(stdout, "The string of %d th row is:", i);
+            for(int j=0;j<BufferSize;j++){
+                fprintf(stdout, "%c", *(rrdma->memgt->rdma_recv_region + i*BufferSize + j));
+            }
+            fprintf(stdout, "\n");
         }
         return num;
     }
