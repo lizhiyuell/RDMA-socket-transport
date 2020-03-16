@@ -80,7 +80,7 @@ using namespace rdma;
         // fprintf(stdout, "before socket build finish\n");
         // initialize the stack
         for(int ii=0;ii<MAX_CQ_NUM;ii++){
-            send_poll_stack.push(MAX_CQ_NUM-ii);  // inverse order, making 0 on the top
+            send_poll_stack.push(MAX_CQ_NUM-ii-1);  // inverse order, making 0 on the top
         }
         // init mutex
         sem_init(&(rrdma->memgt->mutex_send), 0, 1);
