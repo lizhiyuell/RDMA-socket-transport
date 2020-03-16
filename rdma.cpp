@@ -606,11 +606,11 @@ if (rc) {
         }
         fprintf(stdout, "[Debug] pring the bytes in recv_buffer\n");
         char temp;
-        memset(rrdma->memgt->rdma_recv_region, 0, BufferSize*MAX_CQ_NUM);
+        // memset(rrdma->memgt->rdma_recv_region, 0, BufferSize*MAX_CQ_NUM);
         for(int i=0;i<MAX_CQ_NUM;i++){
             fprintf(stdout, "The string of %d th row is:", i);
             for(int j=0;j<BufferSize;j++){
-                memcpy(&temp, (uintptr_t)rrdma->memgt->rdma_recv_region + i*BufferSize + j, 1);
+                memcpy(&temp, rrdma->memgt->rdma_recv_region + i*BufferSize + j, 1);
                 // fprintf(stdout, "%c", *(rrdma->memgt->rdma_recv_region + i*BufferSize + j));
                 fprintf(stdout, "%c", temp);
             }
