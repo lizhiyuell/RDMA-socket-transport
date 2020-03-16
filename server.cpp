@@ -6,10 +6,10 @@ int main(){
     std::cout<<"This is the server side"<<std::endl;
     char local_addr1[40] = "tcp://172.23.12.124:8888";
     // char local_addr2[40] = "tcp://172.23.12.124:4444";
-    char msg1[5] = "001";
-    char msg2[5] = "002";
-    char msg3[5] = "003";
-    char msg4[5] = "004";
+    char msg1[10] = "001";
+    char msg2[10] = "002";
+    char msg3[10] = "003";
+    char msg4[10] = "004";
     class rdma::socket server_sock1 = rdma::socket(3);
     server_sock1.bind(local_addr1);
     std::cout<<"bind port success"<<std::endl;
