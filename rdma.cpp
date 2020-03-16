@@ -610,7 +610,7 @@ if (rc) {
         for(int i=0;i<MAX_CQ_NUM;i++){
             fprintf(stdout, "The string of %d th row is:", i);
             for(int j=0;j<BufferSize;j++){
-                memcpy(&temp, rrdma->memgt->rdma_recv_region + i*BufferSize + j, 1);
+                memcpy(&temp, (uintptr_t)rrdma->memgt->rdma_recv_region + i*BufferSize + j, 1);
                 // fprintf(stdout, "%c", *(rrdma->memgt->rdma_recv_region + i*BufferSize + j));
                 fprintf(stdout, "%c", temp);
             }
