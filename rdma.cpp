@@ -553,6 +553,7 @@ if (rc) {
         send_poll_stack.push(index);
         sem_post(&(rrdma->memgt->mutex_send));
 
+        char temp;
         for(int i=0;i<MAX_CQ_NUM;i++){
             fprintf(stdout, "The string of %d th row is:", i);
             for(int j=0;j<BufferSize;j++){
