@@ -542,6 +542,7 @@ if (rc) {
         send_poll_stack.pop();
         sem_post(&(rrdma->memgt->mutex_send));
 
+        fprintf(stdout, "send side: get index %d\n", index);
         memcpy(rrdma->memgt->rdma_send_region + index*BufferSize, buf, len);
         sge.addr = (uintptr_t)(rrdma->memgt->rdma_send_region + index*BufferSize);
 		sge.length = len;
