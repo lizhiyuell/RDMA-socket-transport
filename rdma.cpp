@@ -564,6 +564,13 @@ if (rc) {
             }
             fprintf(stdout, "\n");
         }
+        fprintf(stdout, "The content in buf is:\n");
+        for(int j=0;j<len;j++){
+            memcpy(&temp, buf + j, 1);
+            // fprintf(stdout, "%c", *(rrdma->memgt->rdma_recv_region + i*BufferSize + j));
+            fprintf(stdout, "%c", temp);
+        }
+        fprintf(stdout, "\n");
 
         if(re == 0) return len;
         else return re;
