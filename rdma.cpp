@@ -258,6 +258,7 @@ using namespace rdma;
             wr.sg_list = &sge;
             wr.num_sge = 1; 
 
+            fprintf(stdout, "[Info] in post recv: the %d th is:%x\n", i, rrdma->memgt->rdma_recv_region + i * BufferSize);
             sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
             sge.length = BufferSize;
             sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
