@@ -250,7 +250,7 @@ using namespace rdma;
         get_wc( &wc, 0 );  // problem exists here.
         // printf("connect port success with remote side\n");
         // add additional recv
-        for( int i = 0; i < MAX_CQ_NUM; i ++ ){
+        for( int i = 1; i < MAX_CQ_NUM; i ++ ){
             struct ibv_recv_wr wr, *bad_wr = NULL;
             struct ibv_sge sge;
             wr.wr_id = i;
@@ -258,7 +258,7 @@ using namespace rdma;
             wr.sg_list = &sge;
             wr.num_sge = 1; 
 
-            fprintf(stdout, "[Info] in post recv: the %d th is:%x\n", i, rrdma->memgt->rdma_recv_region + i * BufferSize);
+            // fprintf(stdout, "[Info] in post recv: the %d th is:%x\n", i, rrdma->memgt->rdma_recv_region + i * BufferSize);
             sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
             sge.length = BufferSize;
             sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
