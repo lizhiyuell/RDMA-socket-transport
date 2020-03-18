@@ -569,7 +569,7 @@ if (rc) {
         for(int j=0;j<len;j++){
             memcpy(&temp, (char*)buf + j, 1);
             // fprintf(stdout, "%c", *(rrdma->memgt->rdma_recv_region + i*BufferSize + j));
-            fprintf(stdout, "%x", temp);
+            fprintf(stdout, "%x ", temp);
         }
         fprintf(stdout, "\n");
 
