@@ -530,7 +530,7 @@ if (rc) {
         struct ibv_cq *cq;
         memset(&swr, 0, sizeof(swr));
         swr.wr_id = 0;
-		swr.opcode = IBV_WR_RDMA_WRITE_WITH_IMM;
+		swr.opcode = IBV_WR_SEND_WITH_IMM;
 		swr.sg_list = &sge;
 		swr.send_flags = IBV_SEND_SIGNALED;
 		swr.num_sge = 1;
