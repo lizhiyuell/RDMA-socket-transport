@@ -535,7 +535,7 @@ if (rc) {
 		swr.send_flags = IBV_SEND_SIGNALED;
 		swr.num_sge = 1;
 		// swr.wr.rdma.remote_addr = (uintptr_t)rrdma->memgt->peer_mr.addr;  // should add offset here
-		swr.wr.rdma.rkey = rrdma->memgt->peer_mr.rkey;
+		// swr.wr.rdma.rkey = rrdma->memgt->peer_mr.rkey;
 
         int index;
         sem_wait(&(rrdma->memgt->mutex_send));
