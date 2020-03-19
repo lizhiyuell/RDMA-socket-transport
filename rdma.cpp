@@ -534,7 +534,7 @@ if (rc) {
 		swr.sg_list = &sge;
 		swr.send_flags = IBV_SEND_SIGNALED;
 		swr.num_sge = 1;
-		swr.wr.rdma.remote_addr = (uintptr_t)rrdma->memgt->peer_mr.addr+BufferSize;
+		// swr.wr.rdma.remote_addr = (uintptr_t)rrdma->memgt->peer_mr.addr;  // should add offset here
 		swr.wr.rdma.rkey = rrdma->memgt->peer_mr.rkey;
 
         int index;
@@ -621,8 +621,8 @@ if (rc) {
                 sge.length = BufferSize;
                 sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
-                TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
                 memcpy((char*)buf + k*BufferSize, rrdma->memgt->rdma_recv_region + index*BufferSize, recv_len);  // can only be used for fixed len recv!
+                TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
             }
         }
         fprintf(stdout, "[Debug] pring the bytes in recv_buffer\n");
