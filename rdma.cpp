@@ -574,6 +574,13 @@ if (rc) {
         // }
         // fprintf(stdout, "\n");
 
+        // temp
+        struct ibv_wc* wc_array;
+        struct ibv_cq *cq;
+        cq = rrdma->s_ctx->send_cq;
+        ibv_poll_cq(cq, MAX_CQ_NUM, wc_array);
+        // temp
+
         if(re == 0) return len;
         else return re;
     }
