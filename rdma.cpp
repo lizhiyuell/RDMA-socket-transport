@@ -597,7 +597,7 @@ if (rc) {
         // while(flag){
         int num = ibv_poll_cq(cq, MAX_CQ_NUM, wc_array);
         if( num<=0 ) return 0; // no request yet
-        fprintf(stdout, "[Info] recv success! with number is %d\n", num);
+        // fprintf(stdout, "[Info] recv success! with number is %d\n", num);
         for( int k = 0; k < num; k ++ ){
             wc = &wc_array[k];
             if( wc->opcode == IBV_WC_RECV || wc->opcode == IBV_WC_RECV_RDMA_WITH_IMM ){
@@ -615,7 +615,7 @@ if (rc) {
                 wr.sg_list = &sge;
                 wr.num_sge = 1;
                 int index = wr.wr_id;
-                fprintf(stdout, "the index is %d\n", index);
+                // fprintf(stdout, "the index is %d\n", index);
 
                 sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + index*BufferSize);
                 sge.length = BufferSize;
@@ -625,18 +625,18 @@ if (rc) {
                 TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
             }
         }
-        fprintf(stdout, "[Debug] pring the bytes in recv_buffer\n");
-        char temp;
+        // fprintf(stdout, "[Debug] pring the bytes in recv_buffer\n");
+        // char temp;
         // memset(rrdma->memgt->rdma_recv_region, 0, BufferSize*MAX_CQ_NUM);
-        for(int i=0;i<MAX_CQ_NUM;i++){
-            fprintf(stdout, "The string of %d th row is:", i);
-            for(int j=0;j<BufferSize;j++){
-                memcpy(&temp, rrdma->memgt->rdma_recv_region + i*BufferSize + j, 1);
-                // fprintf(stdout, "%c", *(rrdma->memgt->rdma_recv_region + i*BufferSize + j));
-                fprintf(stdout, "%x ", temp);
-            }
-            fprintf(stdout, "\n");
-        }
+        // for(int i=0;i<MAX_CQ_NUM;i++){
+        //     fprintf(stdout, "The string of %d th row is:", i);
+        //     for(int j=0;j<BufferSize;j++){
+        //         memcpy(&temp, rrdma->memgt->rdma_recv_region + i*BufferSize + j, 1);
+        //         // fprintf(stdout, "%c", *(rrdma->memgt->rdma_recv_region + i*BufferSize + j));
+        //         fprintf(stdout, "%x ", temp);
+        //     }
+        //     fprintf(stdout, "\n");
+        // }
         return num;
     }
 
