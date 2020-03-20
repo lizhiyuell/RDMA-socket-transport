@@ -19,7 +19,7 @@ int main(){
     for(int i=0;i<3000;i++){
         rc = -1;
         memcpy(msg, &count, sizeof(int));
-        while(rc<0) rc = server_sock1.send(msg1, 5, 0);
+        while(rc<0) rc = server_sock1.send(msg, 5, 0);
         count++;
         usleep(10);
     }
