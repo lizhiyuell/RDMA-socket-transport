@@ -576,7 +576,7 @@ if (rc) {
 
         // temp
         struct ibv_wc* wc_array;
-        struct ibv_cq *cq;
+        // struct ibv_cq *cq;
         cq = rrdma->s_ctx->send_cq;
         ibv_poll_cq(cq, MAX_CQ_NUM, wc_array);
         // temp
