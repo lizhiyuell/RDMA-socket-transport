@@ -575,10 +575,10 @@ if (rc) {
         // fprintf(stdout, "\n");
 
         // temp
-        struct ibv_wc* wc_array;
+        struct ibv_wc wc;
         // struct ibv_cq *cq;
         cq = rrdma->s_ctx->send_cq;
-        ibv_poll_cq(cq, MAX_CQ_NUM, wc_array);
+        ibv_poll_cq(cq, 1, &wc);
         // temp
 
         if(re == 0) return len;
@@ -603,7 +603,10 @@ if (rc) {
         int recv_len = 0;
         // while(flag){
         int num = ibv_poll_cq(cq, MAX_CQ_NUM, wc_array);
-        if( num<=0 ) return 0; // no request yet
+        if( num<=0 ){
+            free(wc_array);
+            return 0;
+        }// no request yet
         // fprintf(stdout, "[Info] recv success! with number is %d\n", num);
         for( int k = 0; k < num; k ++ ){
             wc = &wc_array[k];
@@ -644,6 +647,7 @@ if (rc) {
         //     }
         //     fprintf(stdout, "\n");
         // }
+        free(wc_array);
         return num;
     }
 
