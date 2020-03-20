@@ -20,6 +20,7 @@ int main(){
         rc = -1;
         memcpy(msg, &count, sizeof(int));
         while(rc<0) rc = server_sock1.send(msg, 5, 0);
+        fprintf(stdout, "send %d success\n", count);
         count++;
         usleep(10);
     }

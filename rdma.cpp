@@ -555,24 +555,24 @@ if (rc) {
         send_poll_stack.push(index);
         sem_post(&(rrdma->memgt->mutex_send));
 
-        fprintf(stdout, "len is %d\n", len);
-        char temp;
-        for(int i=0;i<MAX_CQ_NUM;i++){
-            fprintf(stdout, "The string of %d th row is:", i);
-            for(int j=0;j<BufferSize;j++){
-                memcpy(&temp, rrdma->memgt->rdma_send_region + i*BufferSize + j, 1);
-                // fprintf(stdout, "%c", *(rrdma->memgt->rdma_recv_region + i*BufferSize + j));
-                fprintf(stdout, "%x ", temp);
-            }
-            fprintf(stdout, "\n");
-        }
-        fprintf(stdout, "The content in buf is:\n");
-        for(int j=0;j<len;j++){
-            memcpy(&temp, (char*)buf + j, 1);
-            // fprintf(stdout, "%c", *(rrdma->memgt->rdma_recv_region + i*BufferSize + j));
-            fprintf(stdout, "%x ", temp);
-        }
-        fprintf(stdout, "\n");
+        // fprintf(stdout, "len is %d\n", len);
+        // char temp;
+        // for(int i=0;i<MAX_CQ_NUM;i++){
+        //     fprintf(stdout, "The string of %d th row is:", i);
+        //     for(int j=0;j<BufferSize;j++){
+        //         memcpy(&temp, rrdma->memgt->rdma_send_region + i*BufferSize + j, 1);
+        //         // fprintf(stdout, "%c", *(rrdma->memgt->rdma_recv_region + i*BufferSize + j));
+        //         fprintf(stdout, "%x ", temp);
+        //     }
+        //     fprintf(stdout, "\n");
+        // }
+        // fprintf(stdout, "The content in buf is:\n");
+        // for(int j=0;j<len;j++){
+        //     memcpy(&temp, (char*)buf + j, 1);
+        //     // fprintf(stdout, "%c", *(rrdma->memgt->rdma_recv_region + i*BufferSize + j));
+        //     fprintf(stdout, "%x ", temp);
+        // }
+        // fprintf(stdout, "\n");
 
         if(re == 0) return len;
         else return re;
