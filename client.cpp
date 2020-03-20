@@ -46,6 +46,7 @@ int main(){
                 continue;
             }
             fprintf(stdout, "error with %d, should be %d\n", count,temp);
+            return 0;
         }
     }
     return 0;
