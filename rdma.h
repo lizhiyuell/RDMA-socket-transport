@@ -18,7 +18,7 @@
 #define ib_port 1
 // #define ib_gid 3
 #define qp_size 1000 // maximum of outstanding send/recv requests
-#define cq_size 1000
+#define cq_size 500
 #define TEST_Z(x) assert(x)
 #define TEST_NZ(x) assert(!x)
 #define __polling
