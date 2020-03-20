@@ -17,20 +17,37 @@ int main(){
     // std::cout<<"message send success"<<std::endl;
     char recv_buf[BufferSize];
     // sleep(5);
-    for(int ii=0;ii<4;ii++){
-    rc = 0;
-    while(rc<=0) rc = client_sock1.recv(msg1, BufferSize, 0);
-    for(int i=0;i<rc;i++){
-        fprintf(stdout, "The %d th:\n", i);
-        memcpy(recv_buf, msg1 + i*BufferSize, BufferSize);
-        std::cout<<"receive remote message success."<<std::endl<<"remote message is "<<std::endl<<recv_buf<<std::endl;
-    }
+    // for(int ii=0;ii<3000;ii++){
+    // rc = 0;
+    // while(rc<=0) rc = client_sock1.recv(msg1, BufferSize, 0);
+    // for(int i=0;i<rc;i++){
+    //     fprintf(stdout, "The %d th:\n", i);
+    //     memcpy(recv_buf, msg1 + i*BufferSize, BufferSize);
+    //     std::cout<<"receive remote message success."<<std::endl<<"remote message is "<<std::endl<<recv_buf<<std::endl;
+    // }
 
-    fprintf(stdout, "The msg is:\n");
-    for(int i=0;i<4;i++){
-        for(int j=0;j<BufferSize;j++) fprintf(stdout, "%c", *(msg1+i*BufferSize +j));
-        fprintf(stdout, "\n");
-    }
+    // fprintf(stdout, "The msg is:\n");
+    // for(int i=0;i<4;i++){
+    //     for(int j=0;j<BufferSize;j++) fprintf(stdout, "%c", *(msg1+i*BufferSize +j));
+    //     fprintf(stdout, "\n");
+    // }
+    // }
+    int rc;
+    int count;
+    int temp=0;
+    while(true){
+        rc = 0;
+        while(rc<=0) rc = client_sock1.recv(msg1, BufferSize, 0);
+        for(int k=0;k<rc;k++){
+            memcpy(&count, msg1+k*BufferSize, sizeof(int));
+            if(count==3000) break;
+            if(count%100==0) fprintf(stdout, "success with %d\n", count);
+            if(count==temp){
+                temp++;
+                continue;
+            }
+            fprintf(stdout, "error with %d, should be %d\n", count,temp);
+        }
     }
     return 0;
 }
