@@ -32,7 +32,6 @@ int main(){
     //     fprintf(stdout, "\n");
     // }
     // }
-    int rc;
     int count;
     int temp=0;
     while(true){
