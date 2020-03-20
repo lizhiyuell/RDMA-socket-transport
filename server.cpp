@@ -16,7 +16,7 @@ int main(){
     int rc = 0;
     int count = 0;
     char msg[5];
-    for(int i=0;i<600;i++){
+    for(int i=0;i<3000;i++){
         rc = -1;
         memcpy(msg, &count, sizeof(int));
         while(rc<0) rc = server_sock1.send(msg, 5, 0);
