@@ -591,6 +591,7 @@ if (rc) {
         struct ibv_cq *cq;
 
         wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * 20 );
+        assert(wc_array!=NULL);
         cq = rrdma->s_ctx->recv_cq;
         // fprintf(stdout, "[Debug] In func recv: point 0\n");	
         if(connect_flag == 0){
