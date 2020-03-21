@@ -38,7 +38,7 @@ int main(){
         rc = 0;
         while(rc<=0) rc = client_sock1.recv(msg1, BufferSize, 0);
         for(int k=0;k<rc;k++){
-            // memcpy(&count, msg1+k*BufferSize, sizeof(int));
+            memcpy(&count, msg1+k*BufferSize, sizeof(int));
             // if(count==(100000-1)) break;
             fprintf(stdout, "success with %d\n", count++);
             // if(count==temp){

@@ -620,7 +620,7 @@ if (rc) {
                 sge.length = BufferSize;
                 sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
-                // memcpy((char*)buf + k*BufferSize, rrdma->memgt->rdma_recv_region + index*BufferSize, recv_len);  // can only be used for fixed len recv!
+                memcpy((char*)buf + k*BufferSize, rrdma->memgt->rdma_recv_region + index*BufferSize, recv_len);  // can only be used for fixed len recv!
                 TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
             }
         }
