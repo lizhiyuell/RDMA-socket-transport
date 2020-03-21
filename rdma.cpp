@@ -592,23 +592,15 @@ if (rc) {
 
         wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * 20 );
         assert(wc_array!=NULL);
-        cq = rrdma->s_ctx->recv_cq;
-        // fprintf(stdout, "[Debug] In func recv: point 0\n");	
-        if(connect_flag == 0){
-            // fprintf(stdout, "[Info] connect flag not ready yet in recv\n");
-            // sleep(1);
-            return 0;
-        }
+        cq = rrdma->s_ctx->recv_cq;	
+        if(connect_flag == 0) return 0;
 
-        // int flag=1;
         int recv_len = 0;
-        // while(flag){
         int num = ibv_poll_cq(cq, MAX_CQ_NUM, wc_array);
         if( num<=0 ){
             free(wc_array);
             return 0;
-        }// no request yet
-        // fprintf(stdout, "[Info] recv success! with number is %d\n", num);
+        }
         for( int k = 0; k < num; k ++ ){
             wc = &wc_array[k];
             if( wc->opcode == IBV_WC_RECV || wc->opcode == IBV_WC_RECV_RDMA_WITH_IMM ){
@@ -616,9 +608,6 @@ if (rc) {
                     printf("recv error %d!\n", 0);
                 }
                 recv_len = wc->byte_len;
-                // fprintf(stdout, "[Info] recv success! with number is %d\n", num);
-                // fprintf(stdout, "[Debug] In func recv: point 1\n");	
-                // flag = 0;
                 struct ibv_recv_wr wr, *bad_wr = NULL;
                 struct ibv_sge sge;
                 wr.wr_id = wc->wr_id;
@@ -626,28 +615,15 @@ if (rc) {
                 wr.sg_list = &sge;
                 wr.num_sge = 1;
                 int index = wr.wr_id;
-                // fprintf(stdout, "the index is %d\n", index);
 
                 sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + index*BufferSize);
                 sge.length = BufferSize;
                 sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
-                memcpy((char*)buf + k*BufferSize, rrdma->memgt->rdma_recv_region + index*BufferSize, recv_len);  // can only be used for fixed len recv!
+                // memcpy((char*)buf + k*BufferSize, rrdma->memgt->rdma_recv_region + index*BufferSize, recv_len);  // can only be used for fixed len recv!
                 TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
             }
         }
-        // fprintf(stdout, "[Debug] pring the bytes in recv_buffer\n");
-        // char temp;
-        // memset(rrdma->memgt->rdma_recv_region, 0, BufferSize*MAX_CQ_NUM);
-        // for(int i=0;i<MAX_CQ_NUM;i++){
-        //     fprintf(stdout, "The string of %d th row is:", i);
-        //     for(int j=0;j<BufferSize;j++){
-        //         memcpy(&temp, rrdma->memgt->rdma_recv_region + i*BufferSize + j, 1);
-        //         // fprintf(stdout, "%c", *(rrdma->memgt->rdma_recv_region + i*BufferSize + j));
-        //         fprintf(stdout, "%x ", temp);
-        //     }
-        //     fprintf(stdout, "\n");
-        // }
         free(wc_array);
         return num;
     }
