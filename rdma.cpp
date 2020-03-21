@@ -586,15 +586,15 @@ if (rc) {
     }
 
     int socket::recv(void *buf,  size_t len, int _flag){  // ok
+        
+        if(connect_flag == 0) return 0;
         struct ibv_wc* wc;
         struct ibv_wc* wc_array;
         struct ibv_cq *cq;
-
-        wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * 20 );
         assert(wc_array!=NULL);
         cq = rrdma->s_ctx->recv_cq;	
-        if(connect_flag == 0) return 0;
-
+        
+        wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * MAX_CQ_NUM );
         int recv_len = 0;
         int num = ibv_poll_cq(cq, MAX_CQ_NUM, wc_array);
         if( num<=0 ){
