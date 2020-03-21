@@ -605,7 +605,7 @@ if (rc) {
         // while(flag){
         int num = ibv_poll_cq(cq, MAX_CQ_NUM, wc_array);
         if( num<=0 ){
-            // free(wc_array);
+            free(wc_array);
             return 0;
         }// no request yet
         // fprintf(stdout, "[Info] recv success! with number is %d\n", num);
@@ -648,7 +648,7 @@ if (rc) {
         //     }
         //     fprintf(stdout, "\n");
         // }
-        // free(wc_array);
+        free(wc_array);
         return num;
     }
 
