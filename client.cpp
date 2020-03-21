@@ -32,8 +32,8 @@ int main(){
     //     fprintf(stdout, "\n");
     // }
     // }
-    int count;
-    int temp=0;
+    int count=0;
+    // int temp=0;
     while(true){
         rc = 0;
         while(rc<=0) rc = client_sock1.recv(msg1, BufferSize, 0);
@@ -46,7 +46,6 @@ int main(){
             //     continue;
             // }
             // fprintf(stdout, "error with %d, should be %d\n", count,temp);
-            return 0;
         }
     }
     return 0;
