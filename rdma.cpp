@@ -600,7 +600,7 @@ if (rc) {
         wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * MAX_CQ_NUM );
         int recv_len = 0;
         int num = ibv_poll_cq(cq, MAX_CQ_NUM, wc_array);
-        printf("The polled number is %d\n", num);
+        if(num!=0) printf("The polled number is %d\n", num);
         if( num<=0 ){
             free(wc_array);
             return 0;
