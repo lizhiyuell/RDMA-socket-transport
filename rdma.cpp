@@ -85,6 +85,7 @@ using namespace rdma;
         // init mutex
         sem_init(&(rrdma->memgt->mutex_send), 0, 1);
         // fprintf(stdout, "socket build finish\n");
+        _count = 0;
     }
 
 
@@ -187,6 +188,7 @@ using namespace rdma;
 
             TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
         }
+        _count = MAX_CQ_NUM;
 
         connect_flag = 1;
         fprintf(stdout, "[Debug] bind finish for %s:%d\n", ip_addr, bind_port);
@@ -265,6 +267,7 @@ using namespace rdma;
 
             TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
         }
+        _count = MAX_CQ_NUM;
 
         connect_flag = 2;
         fprintf(stdout, "[Debug] connect finish for %s:%d\n", ip_addr, connect_port);
@@ -597,6 +600,7 @@ if (rc) {
         wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * MAX_CQ_NUM );
         int recv_len = 0;
         int num = ibv_poll_cq(cq, MAX_CQ_NUM, wc_array);
+        printf("The polled number is %d\n", num);
         if( num<=0 ){
             free(wc_array);
             return 0;

@@ -129,6 +129,7 @@ namespace rdma{
 		int connect_flag; // a flag to show whether connection has been built. 0 for no, 1 for bind and 2 for connect
 		param_t param_bind, param_connect;
 		char ip_addr_temp[50];
+		int _count;
 		// socket infomation
 		int sock_port;
 		char sock_addr[50];

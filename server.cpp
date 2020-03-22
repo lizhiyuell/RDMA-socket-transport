@@ -14,13 +14,13 @@ int main(){
     // struct timespec time1 = {0, 0};
     // clock_gettime(CLOCK_REALTIME, &time1);
     // long int start = time1.tv_sec*(int)1e9+time1.tv_nsec;
-    for(int i=0;i<100000;i++){
+    for(int i=0;i<5000;i++){
         rc = -1;
         memcpy(msg, &count, sizeof(int));
         while(rc<0) rc = server_sock1.send(msg, 5, 0);
         fprintf(stdout, "send %d success\n", count);
         count++;
-        usleep(10);
+        // usleep(10);
     }
     // clock_gettime(CLOCK_REALTIME, &time1);
     // long int end = time1.tv_sec*(int)1e9+time1.tv_nsec;
