@@ -18,13 +18,13 @@
 // RDMA definition
 #define ib_port 1
 // #define ib_gid 3
-#define qp_size 500 // maximum of outstanding send/recv requests
-#define cq_size 500
+#define qp_size 2000 // maximum of outstanding send/recv requests
+#define cq_size 2000
 #define TEST_Z(x) assert(x)
 #define TEST_NZ(x) assert(!x)
 #define __polling
 #define BufferSize 16  // send/recv  size for each node
-#define MAX_CQ_NUM 400
+#define MAX_CQ_NUM qp_size
 // RDMA definition
 
 namespace rdma{
