@@ -34,9 +34,9 @@ int main(){
     // }
     int count=0;
     int temp=0;
-    struct timespec time1 = {0, 0};
-    clock_gettime(CLOCK_REALTIME, &time1);
-    long int start = time1.tv_sec*(int)1e9+time1.tv_nsec;
+    // struct timespec time1 = {0, 0};
+    // clock_gettime(CLOCK_REALTIME, &time1);
+    // long int start = time1.tv_sec*(int)1e9+time1.tv_nsec;
     while(true){
         rc = 0;
         while(rc<=0) rc = client_sock1.recv(msg1, BufferSize, 0);
@@ -49,12 +49,13 @@ int main(){
                 continue;
             }
             fprintf(stdout, "error with %d, should be %d\n", count,temp);
+            return 0;
         }
     }
-    clock_gettime(CLOCK_REALTIME, &time1);
-    long int end = time1.tv_sec*(int)1e9+time1.tv_nsec;
-    long int dur = end - start;
-    double tput = 100000.0/(double)dur;
-    printf("duration: %d, tput: %f\n", dur, tput);
+    // clock_gettime(CLOCK_REALTIME, &time1);
+    // long int end = time1.tv_sec*(int)1e9+time1.tv_nsec;
+    // long int dur = end - start;
+    // double tput = 100000.0/(double)dur;
+    // printf("duration: %d, tput: %f\n", dur, tput);
     return 0;
 }
