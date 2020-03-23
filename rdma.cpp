@@ -560,9 +560,9 @@ if (rc) {
         send_poll_stack.push(index);
         sem_post(&(rrdma->memgt->mutex_send));
 
-        // struct ibv_wc wc;
-        // cq = rrdma->s_ctx->send_cq;
-        // ibv_poll_cq(cq, 1, &wc);
+        struct ibv_wc wc;
+        cq = rrdma->s_ctx->send_cq;
+        ibv_poll_cq(cq, 1, &wc);
         // send_cq_count++;
         // if(send_cq_count==30){
         //     send_cq_count = 0;
