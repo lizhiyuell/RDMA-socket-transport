@@ -252,7 +252,7 @@ using namespace rdma;
         get_wc( &wc, 0 );  // problem exists here.
         // printf("connect port success with remote side\n");
         // add additional recv
-        for( int i = 1; i < MAX_CQ_NUM - 1; i ++ ){
+        for( int i = 0; i < MAX_CQ_NUM - 1; i ++ ){
             struct ibv_recv_wr wr, *bad_wr = NULL;
             struct ibv_sge sge;
             wr.wr_id = i;
