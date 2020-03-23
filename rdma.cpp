@@ -545,7 +545,7 @@ if (rc) {
             int count = 0;
             int temp;
             for( int k = 0; k < num; k ++ ){
-            struct ibv_wc wc = &wc_array[k];
+            struct ibv_wc* wc = &wc_array[k];
             if( wc->opcode == IBV_WC_RECV || wc->opcode == IBV_WC_RECV_RDMA_WITH_IMM ){
                 if( wc->status != IBV_WC_SUCCESS ){
                     printf("recv error %d!\n", 0);
