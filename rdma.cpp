@@ -252,7 +252,7 @@ using namespace rdma;
         get_wc( &wc, 0 );  // problem exists here.
         // printf("connect port success with remote side\n");
         // add additional recv
-        for( int i = 0; i < MAX_CQ_NUM*4; i ++ ){
+        for( int i = 0; i < MAX_CQ_NUM; i ++ ){
             struct ibv_recv_wr wr, *bad_wr = NULL;
             struct ibv_sge sge;
             wr.wr_id = i;
@@ -599,7 +599,7 @@ if (rc) {
         
         wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * MAX_CQ_NUM );
         int recv_len = 0;
-        int num = ibv_poll_cq(cq, MAX_CQ_NUM, wc_array);
+        int num = ibv_poll_cq(cq, 10, wc_array);
         if(num!=0) printf("The polled number is %d\n", num);
         if( num<=0 ){
             free(wc_array);
