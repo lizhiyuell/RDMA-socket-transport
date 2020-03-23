@@ -534,7 +534,7 @@ if (rc) {
         struct ibv_cq *cq;
         memset(&swr, 0, sizeof(swr));
         swr.wr_id = 0;
-		swr.opcode = IBV_WR_SEND_WITH_IMM;
+		swr.opcode = IBV_WR_SEND;
 		swr.sg_list = &sge;
 		swr.send_flags = IBV_SEND_SIGNALED|IBV_SEND_SOLICITED;
 		swr.num_sge = 1;
