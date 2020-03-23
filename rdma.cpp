@@ -175,20 +175,20 @@ using namespace rdma;
 
         // printf("bind port success with remote side\n");
         // add additional recv
-        for( int i = 0; i < MAX_CQ_NUM - 1; i ++ ){
-            struct ibv_recv_wr wr, *bad_wr = NULL;
-            struct ibv_sge sge;
-            wr.wr_id = i;
-            wr.next = NULL;
-            wr.sg_list = &sge;
-            wr.num_sge = 1; 
+        // for( int i = 0; i < MAX_CQ_NUM - 1; i ++ ){
+        //     struct ibv_recv_wr wr, *bad_wr = NULL;
+        //     struct ibv_sge sge;
+        //     wr.wr_id = i;
+        //     wr.next = NULL;
+        //     wr.sg_list = &sge;
+        //     wr.num_sge = 1; 
 
-            sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
-            sge.length = BufferSize;
-            sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
+        //     sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
+        //     sge.length = BufferSize;
+        //     sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
-            TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
-        }
+        //     TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
+        // }
         _count = MAX_CQ_NUM;
 
         connect_flag = 1;
@@ -253,21 +253,21 @@ using namespace rdma;
         get_wc( &wc, 0 );  // problem exists here.
         // printf("connect port success with remote side\n");
         // add additional recv
-        for( int i = 0; i < MAX_CQ_NUM; i ++ ){
-            struct ibv_recv_wr wr, *bad_wr = NULL;
-            struct ibv_sge sge;
-            wr.wr_id = i;
-            wr.next = NULL;
-            wr.sg_list = &sge;
-            wr.num_sge = 1; 
+        // for( int i = 0; i < MAX_CQ_NUM; i ++ ){
+        //     struct ibv_recv_wr wr, *bad_wr = NULL;
+        //     struct ibv_sge sge;
+        //     wr.wr_id = i;
+        //     wr.next = NULL;
+        //     wr.sg_list = &sge;
+        //     wr.num_sge = 1; 
 
-            // fprintf(stdout, "[Info] in post recv: the %d th is:%x\n", i, rrdma->memgt->rdma_recv_region + i * BufferSize);
-            sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
-            sge.length = BufferSize;
-            sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
+        //     // fprintf(stdout, "[Info] in post recv: the %d th is:%x\n", i, rrdma->memgt->rdma_recv_region + i * BufferSize);
+        //     sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
+        //     sge.length = BufferSize;
+        //     sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
-            TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
-        }
+        //     TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
+        // }
         _count = MAX_CQ_NUM;
 
         connect_flag = 2;
@@ -563,7 +563,7 @@ if (rc) {
         struct ibv_wc wc;
         cq = rrdma->s_ctx->send_cq;
         ibv_poll_cq(cq, 1, &wc);
-        if(wc.status!=IBV_WC_SUCCESS) printf("not success!\n");
+        if(wc.status==IBV_WC_SUCCESS) printf("success!\n");
         // send_cq_count++;
         // if(send_cq_count==30){
         //     send_cq_count = 0;
