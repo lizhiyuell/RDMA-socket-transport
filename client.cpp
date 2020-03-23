@@ -8,6 +8,7 @@ int main(){
     char msg1[BufferSize * 5] = "This is the client side1";
     class rdma::socket client_sock1 = rdma::socket(5);
     client_sock1.connect(remote_addr1);
+    sleep(2);
     int rc;
     // rc = -1;
     // while(rc<0){
