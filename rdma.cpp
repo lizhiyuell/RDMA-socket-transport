@@ -536,7 +536,7 @@ if (rc) {
         swr.wr_id = 0;
 		swr.opcode = IBV_WR_SEND_WITH_IMM;
 		swr.sg_list = &sge;
-		swr.send_flags = IBV_SEND_SIGNALED;
+		swr.send_flags = IBV_SEND_SIGNALED|IBV_SEND_SOLICITED;
 		swr.num_sge = 1;
 		// swr.wr.rdma.remote_addr = (uintptr_t)rrdma->memgt->peer_mr.addr;  // should add offset here
 		// swr.wr.rdma.rkey = rrdma->memgt->peer_mr.rkey;
@@ -559,26 +559,6 @@ if (rc) {
         send_poll_stack.push(index);
         sem_post(&(rrdma->memgt->mutex_send));
 
-        // fprintf(stdout, "len is %d\n", len);
-        // char temp;
-        // for(int i=0;i<MAX_CQ_NUM;i++){
-        //     fprintf(stdout, "The string of %d th row is:", i);
-        //     for(int j=0;j<BufferSize;j++){
-        //         memcpy(&temp, rrdma->memgt->rdma_send_region + i*BufferSize + j, 1);
-        //         // fprintf(stdout, "%c", *(rrdma->memgt->rdma_recv_region + i*BufferSize + j));
-        //         fprintf(stdout, "%x ", temp);
-        //     }
-        //     fprintf(stdout, "\n");
-        // }
-        // fprintf(stdout, "The content in buf is:\n");
-        // for(int j=0;j<len;j++){
-        //     memcpy(&temp, (char*)buf + j, 1);
-        //     // fprintf(stdout, "%c", *(rrdma->memgt->rdma_recv_region + i*BufferSize + j));
-        //     fprintf(stdout, "%x ", temp);
-        // }
-        // fprintf(stdout, "\n");
-
-        // temp
         struct ibv_wc wc;
         cq = rrdma->s_ctx->send_cq;
         ibv_poll_cq(cq, 1, &wc);
