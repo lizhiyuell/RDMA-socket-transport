@@ -563,7 +563,7 @@ if (rc) {
         struct ibv_wc wc;
         cq = rrdma->s_ctx->send_cq;
         ibv_poll_cq(cq, 1, &wc);
-        if(wc->status!=IBV_WC_SUCCESS) printf("not success!\n");
+        if(wc.status!=IBV_WC_SUCCESS) printf("not success!\n");
         // send_cq_count++;
         // if(send_cq_count==30){
         //     send_cq_count = 0;
