@@ -86,6 +86,7 @@ using namespace rdma;
         sem_init(&(rrdma->memgt->mutex_send), 0, 1);
         // fprintf(stdout, "socket build finish\n");
         _count = 0;
+        send_cq_count=0;
     }
 
 
@@ -579,10 +580,13 @@ if (rc) {
 
         // temp
         struct ibv_wc wc;
-        // struct ibv_cq *cq;
         cq = rrdma->s_ctx->send_cq;
         ibv_poll_cq(cq, 1, &wc);
-        // temp
+        send_cq_count++;
+        if(send_cq_count==90){
+            send_cq_count = 0;
+            usleep(10);
+        }
 
         if(re == 0) return len;
         else return re;
@@ -599,7 +603,7 @@ if (rc) {
         
         wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * MAX_CQ_NUM );
         int recv_len = 0;
-        int num = ibv_poll_cq(cq, 10, wc_array);
+        int num = ibv_poll_cq(cq, MAX_CQ_NUM, wc_array);
         if(num!=0) printf("The polled number is %d\n", num);
         if( num<=0 ){
             free(wc_array);

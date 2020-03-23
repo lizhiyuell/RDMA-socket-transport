@@ -24,7 +24,7 @@
 #define TEST_NZ(x) assert(!x)
 #define __polling
 #define BufferSize 16  // send/recv  size for each node
-#define MAX_CQ_NUM 40
+#define MAX_CQ_NUM 100
 // RDMA definition
 
 namespace rdma{
@@ -130,6 +130,7 @@ namespace rdma{
 		param_t param_bind, param_connect;
 		char ip_addr_temp[50];
 		int _count;
+		int send_cq_count;
 		// socket infomation
 		int sock_port;
 		char sock_addr[50];
