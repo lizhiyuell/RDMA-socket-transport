@@ -20,7 +20,7 @@ int main(){
         while(rc<0) rc = server_sock1.send(msg, 5, 0);
         fprintf(stdout, "send %d success\n", count);
         count++;
-        if(i%10==0) usleep(1);
+        // if(i%10==0) usleep(1);
     }
     // clock_gettime(CLOCK_REALTIME, &time1);
     // long int end = time1.tv_sec*(int)1e9+time1.tv_nsec;
