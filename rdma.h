@@ -136,7 +136,10 @@ namespace rdma{
 		char sock_addr[50];
 		// memory poll index stack
 		std::stack<int> send_poll_stack;
-
+		// new release
+		int send_flow_control; // the number of outstanding send request
+		int recv_flow_control; // the number of outstanding recv request
+		// new release
 
 		int sock;  // sock to exchange data with the remote side
 		int ib_gid;

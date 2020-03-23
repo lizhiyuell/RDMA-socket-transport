@@ -87,6 +87,10 @@ using namespace rdma;
         // fprintf(stdout, "socket build finish\n");
         _count = 0;
         send_cq_count=0;
+        // new release
+        send_flow_control = 0;
+        recv_flow_control = 0;
+        // new release
     }
 
 
@@ -175,20 +179,20 @@ using namespace rdma;
 
         // printf("bind port success with remote side\n");
         // add additional recv
-        // for( int i = 0; i < MAX_CQ_NUM - 1; i ++ ){
-        //     struct ibv_recv_wr wr, *bad_wr = NULL;
-        //     struct ibv_sge sge;
-        //     wr.wr_id = i;
-        //     wr.next = NULL;
-        //     wr.sg_list = &sge;
-        //     wr.num_sge = 1; 
+        for( int i = 0; i < MAX_CQ_NUM - 1; i ++ ){
+            struct ibv_recv_wr wr, *bad_wr = NULL;
+            struct ibv_sge sge;
+            wr.wr_id = i;
+            wr.next = NULL;
+            wr.sg_list = &sge;
+            wr.num_sge = 1; 
 
-        //     sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
-        //     sge.length = BufferSize;
-        //     sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
+            sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
+            sge.length = BufferSize;
+            sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
-        //     TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
-        // }
+            TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
+        }
         _count = MAX_CQ_NUM;
 
         connect_flag = 1;
@@ -253,21 +257,21 @@ using namespace rdma;
         get_wc( &wc, 0 );  // problem exists here.
         // printf("connect port success with remote side\n");
         // add additional recv
-        // for( int i = 0; i < MAX_CQ_NUM; i ++ ){
-        //     struct ibv_recv_wr wr, *bad_wr = NULL;
-        //     struct ibv_sge sge;
-        //     wr.wr_id = i;
-        //     wr.next = NULL;
-        //     wr.sg_list = &sge;
-        //     wr.num_sge = 1; 
+        for( int i = 0; i < MAX_CQ_NUM; i ++ ){
+            struct ibv_recv_wr wr, *bad_wr = NULL;
+            struct ibv_sge sge;
+            wr.wr_id = i;
+            wr.next = NULL;
+            wr.sg_list = &sge;
+            wr.num_sge = 1; 
 
-        //     // fprintf(stdout, "[Info] in post recv: the %d th is:%x\n", i, rrdma->memgt->rdma_recv_region + i * BufferSize);
-        //     sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
-        //     sge.length = BufferSize;
-        //     sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
+            // fprintf(stdout, "[Info] in post recv: the %d th is:%x\n", i, rrdma->memgt->rdma_recv_region + i * BufferSize);
+            sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
+            sge.length = BufferSize;
+            sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
-        //     TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
-        // }
+            TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
+        }
         _count = MAX_CQ_NUM;
 
         connect_flag = 2;
@@ -529,6 +533,45 @@ if (rc) {
     int socket::send(const void *buf, size_t len, int _flag){  // ok
 
         if(connect_flag == 0) return -1;
+        // release
+        if(send_flow_control==MAX_CQ_NUM){
+            struct ibv_wc* wc_array;
+            wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * MAX_CQ_NUM );
+            int num = ibv_poll_cq(rrdma->s_ctx->recv_cq, MAX_CQ_NUM, wc_array);
+            if(num==0){
+                free(wc_array);
+                return -1;
+            }
+            int count = 0;
+            int temp;
+            for( int k = 0; k < num; k ++ ){
+            struct ibv_wc wc = &wc_array[k];
+            if( wc->opcode == IBV_WC_RECV || wc->opcode == IBV_WC_RECV_RDMA_WITH_IMM ){
+                if( wc->status != IBV_WC_SUCCESS ){
+                    printf("recv error %d!\n", 0);
+                }
+                struct ibv_recv_wr wr, *bad_wr = NULL;
+                struct ibv_sge sge;
+                wr.wr_id = wc->wr_id;
+                wr.next = NULL;
+                wr.sg_list = &sge;
+                wr.num_sge = 1;
+                int index = wr.wr_id;
+
+                sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + index*BufferSize);
+                sge.length = BufferSize;
+                sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
+
+                memcpy(&temp, rrdma->memgt->rdma_recv_region + index*BufferSize, sizeof(int));  // can only be used for fixed len recv!
+                TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
+                count += temp;
+            }
+        }
+        free(wc_array);
+        send_flow_control -= count;
+        }
+        send_flow_control++;
+        // release
         struct ibv_send_wr swr, *sbad_wr = NULL;
         struct ibv_sge sge;
         struct ibv_cq *cq;
@@ -563,7 +606,7 @@ if (rc) {
         struct ibv_wc wc;
         cq = rrdma->s_ctx->send_cq;
         ibv_poll_cq(cq, 1, &wc);
-        if(wc.status==IBV_WC_SUCCESS) printf("success!\n");
+        // if(wc.status==IBV_WC_SUCCESS) printf("success!\n");
         // send_cq_count++;
         // if(send_cq_count==30){
         //     send_cq_count = 0;
@@ -615,6 +658,41 @@ if (rc) {
             }
         }
         free(wc_array);
+        // release
+        recv_flow_control += num;
+        if(recv_flow_control>=MAX_CQ_NUM/2){ // large enough for feed back
+            struct ibv_send_wr swr, *sbad_wr = NULL;
+            struct ibv_sge sge;
+            struct ibv_cq *cq;
+            memset(&swr, 0, sizeof(swr));
+            swr.wr_id = 0;
+            swr.opcode = IBV_WR_SEND_WITH_IMM;
+            swr.sg_list = &sge;
+            swr.num_sge = 1;
+
+            int index;
+            sem_wait(&(rrdma->memgt->mutex_send));
+            index = send_poll_stack.top();
+            send_poll_stack.pop();
+            sem_post(&(rrdma->memgt->mutex_send));
+
+            memcpy(rrdma->memgt->rdma_send_region + index*BufferSize, &recv_flow_control, sizeof(int));
+            sge.addr = (uintptr_t)(rrdma->memgt->rdma_send_region + index*BufferSize);
+            sge.length = sizeof(int);
+            sge.lkey = rrdma->memgt->rdma_send_mr->lkey;
+
+            int re = ibv_post_send(rrdma->qp, &swr, &sbad_wr);  // modify to a non-blocked manner, passing failure to upper level
+
+            sem_wait(&(rrdma->memgt->mutex_send));
+            send_poll_stack.push(index);
+            sem_post(&(rrdma->memgt->mutex_send));
+
+            struct ibv_wc wc;
+            cq = rrdma->s_ctx->send_cq;
+            ibv_poll_cq(cq, 1, &wc);
+            recv_flow_control = 0;
+            }
+        // release
         return num;
     }
 
