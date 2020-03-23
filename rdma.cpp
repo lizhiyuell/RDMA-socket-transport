@@ -536,8 +536,8 @@ if (rc) {
         swr.wr_id = 0;
 		swr.opcode = IBV_WR_SEND_WITH_IMM;
 		swr.sg_list = &sge;
-		// swr.send_flags = IBV_SEND_SIGNALED;
-        swr.send_flags = 0;
+		swr.send_flags = IBV_SEND_SIGNALED|IBV_SEND_FENCE;
+        // swr.send_flags = 0;
 		swr.num_sge = 1;
 		// swr.wr.rdma.remote_addr = (uintptr_t)rrdma->memgt->peer_mr.addr;  // should add offset here
 		// swr.wr.rdma.rkey = rrdma->memgt->peer_mr.rkey;
