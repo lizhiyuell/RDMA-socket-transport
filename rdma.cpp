@@ -582,11 +582,11 @@ if (rc) {
         struct ibv_wc wc;
         cq = rrdma->s_ctx->send_cq;
         ibv_poll_cq(cq, 1, &wc);
-        send_cq_count++;
-        if(send_cq_count==30){
-            send_cq_count = 0;
-            usleep(1000);
-        }
+        // send_cq_count++;
+        // if(send_cq_count==30){
+        //     send_cq_count = 0;
+        //     // usleep(1000);
+        // }
 
         if(re == 0) return len;
         else return re;
