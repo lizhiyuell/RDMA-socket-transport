@@ -321,7 +321,7 @@ using namespace rdma;
         qp_attr->cap.max_recv_sge = 20;
         qp_attr->cap.max_inline_data = 200; // max size in byte of inline data on the send queue
         
-        qp_attr->sq_sig_all = 1; // set as 1 to generate CQE from all WQ
+        qp_attr->sq_sig_all = 0; // set as 1 to generate CQE from all WQ
         struct ibv_qp *myqp = ibv_create_qp( rrdma->s_ctx->pd, qp_attr );
         rrdma->qp = myqp;
         // connect qp
