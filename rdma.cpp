@@ -585,7 +585,7 @@ if (rc) {
         send_cq_count++;
         if(send_cq_count==30){
             send_cq_count = 0;
-            usleep(10);
+            usleep(1000);
         }
 
         if(re == 0) return len;
