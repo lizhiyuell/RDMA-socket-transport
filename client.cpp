@@ -5,7 +5,7 @@ int main(){
 
     std::cout<<"This is the client side"<<std::endl;
     char remote_addr1[40] = "tcp://172.23.12.124:8888";
-    char msg1[BufferSize * 5] = "This is the client side1";
+    char msg1[BufferSize * MAX_CQ_NUM] = "This is the client side1";
     class rdma::socket client_sock1 = rdma::socket(5);
     client_sock1.connect(remote_addr1);
     // sleep(100);
