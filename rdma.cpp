@@ -534,9 +534,10 @@ if (rc) {
         struct ibv_cq *cq;
         memset(&swr, 0, sizeof(swr));
         swr.wr_id = 0;
-		swr.opcode = IBV_WR_SEND;
+		swr.opcode = IBV_WR_SEND_WITH_IMM;
 		swr.sg_list = &sge;
-		swr.send_flags = IBV_SEND_SIGNALED|IBV_SEND_SOLICITED;
+		// swr.send_flags = IBV_SEND_SIGNALED;
+        swr.send_flags = 0;
 		swr.num_sge = 1;
 		// swr.wr.rdma.remote_addr = (uintptr_t)rrdma->memgt->peer_mr.addr;  // should add offset here
 		// swr.wr.rdma.rkey = rrdma->memgt->peer_mr.rkey;
@@ -559,9 +560,9 @@ if (rc) {
         send_poll_stack.push(index);
         sem_post(&(rrdma->memgt->mutex_send));
 
-        struct ibv_wc wc;
-        cq = rrdma->s_ctx->send_cq;
-        ibv_poll_cq(cq, 1, &wc);
+        // struct ibv_wc wc;
+        // cq = rrdma->s_ctx->send_cq;
+        // ibv_poll_cq(cq, 1, &wc);
         // send_cq_count++;
         // if(send_cq_count==30){
         //     send_cq_count = 0;
