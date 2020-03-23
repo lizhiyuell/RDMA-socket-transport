@@ -321,7 +321,7 @@ using namespace rdma;
         qp_attr->cap.max_recv_sge = 20;
         qp_attr->cap.max_inline_data = 200; // max size in byte of inline data on the send queue
         
-        qp_attr->sq_sig_all = 0; // set as 1 to generate CQE from all WQ
+        qp_attr->sq_sig_all = 1; // set as 1 to generate CQE from all WQ
         struct ibv_qp *myqp = ibv_create_qp( rrdma->s_ctx->pd, qp_attr );
         rrdma->qp = myqp;
         // connect qp
@@ -536,7 +536,7 @@ if (rc) {
         swr.wr_id = 0;
 		swr.opcode = IBV_WR_SEND_WITH_IMM;
 		swr.sg_list = &sge;
-		swr.send_flags = IBV_SEND_SOLICITED|IBV_SEND_FENCE;
+		// swr.send_flags = IBV_SEND_SOLICITED|IBV_SEND_FENCE;
         // swr.send_flags = 0;
 		swr.num_sge = 1;
 		// swr.wr.rdma.remote_addr = (uintptr_t)rrdma->memgt->peer_mr.addr;  // should add offset here
