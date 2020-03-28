@@ -599,13 +599,13 @@ if (rc) {
 
         int re = ibv_post_send(rrdma->qp, &swr, &sbad_wr);  // modify to a non-blocked manner, passing failure to upper level
 
-        sem_wait(&(rrdma->memgt->mutex_send));
-        send_poll_stack.push(index);
-        sem_post(&(rrdma->memgt->mutex_send));
-
         struct ibv_wc wc;
         cq = rrdma->s_ctx->send_cq;
         ibv_poll_cq(cq, 1, &wc);
+
+        sem_wait(&(rrdma->memgt->mutex_send));
+        send_poll_stack.push(index);
+        sem_post(&(rrdma->memgt->mutex_send));
         // if(wc.status==IBV_WC_SUCCESS) printf("success!\n");
         // send_cq_count++;
         // if(send_cq_count==30){
