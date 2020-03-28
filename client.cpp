@@ -45,7 +45,7 @@ int main(){
             memcpy(&count, msg1+k*BufferSize, sizeof(int));
             if(count==(50000000-1)) return 0;
             // if(count%1000==0) 
-            // if(count%10000==0) 
+            if(count%10000==0) 
             fprintf(stdout, "success with %d\n", count);
             if(count==temp){
                 temp++;
