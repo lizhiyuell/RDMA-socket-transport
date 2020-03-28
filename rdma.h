@@ -14,6 +14,7 @@
 #include <map>
 #include "semaphore.h"
 #include <time.h>
+#include <queue>
 
 // RDMA definition
 #define ib_port 1
@@ -135,7 +136,8 @@ namespace rdma{
 		int sock_port;
 		char sock_addr[50];
 		// memory poll index stack
-		std::stack<int> send_poll_stack;
+		// std::stack<int> send_poll_stack;
+		std::queue<int> send_poll_queue;
 		// release
 		int send_flow_control; // the number of outstanding send request
 		int recv_flow_control; // the number of outstanding recv request

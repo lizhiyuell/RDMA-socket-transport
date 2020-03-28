@@ -80,7 +80,7 @@ using namespace rdma;
         // fprintf(stdout, "before socket build finish\n");
         // initialize the stack
         for(int ii=0;ii<MAX_CQ_NUM;ii++){
-            send_poll_stack.push(MAX_CQ_NUM-ii-1);  // inverse order, making 0 on the top
+            send_poll_queue.push(MAX_CQ_NUM-ii-1);  // inverse order, making 0 on the top
         }
         // init mutex
         sem_init(&(rrdma->memgt->mutex_send), 0, 1);
@@ -587,8 +587,8 @@ if (rc) {
 
         int index;
         sem_wait(&(rrdma->memgt->mutex_send));
-        index = send_poll_stack.top();
-        send_poll_stack.pop();
+        index = send_poll_queue.front();
+        send_poll_queue.pop();
         sem_post(&(rrdma->memgt->mutex_send));
         // printf("send index %d\n", index);
 
@@ -605,7 +605,7 @@ if (rc) {
         ibv_poll_cq(cq, 1, &wc);
 
         sem_wait(&(rrdma->memgt->mutex_send));
-        send_poll_stack.push(index);
+        send_poll_queue.push(index);
         sem_post(&(rrdma->memgt->mutex_send));
         // if(wc.status==IBV_WC_SUCCESS) printf("success!\n");
         // send_cq_count++;
@@ -685,8 +685,8 @@ if (rc) {
 
             int index;
             sem_wait(&(rrdma->memgt->mutex_send));
-            index = send_poll_stack.top();
-            send_poll_stack.pop();
+            index = send_poll_queue.front();
+            send_poll_queue.pop();
             sem_post(&(rrdma->memgt->mutex_send));
 
             memcpy(rrdma->memgt->rdma_send_region + index*BufferSize, &recv_flow_control, sizeof(int));
@@ -697,7 +697,7 @@ if (rc) {
             int re = ibv_post_send(rrdma->qp, &swr, &sbad_wr);  // modify to a non-blocked manner, passing failure to upper level
 
             sem_wait(&(rrdma->memgt->mutex_send));
-            send_poll_stack.push(index);
+            send_poll_queue.push(index);
             sem_post(&(rrdma->memgt->mutex_send));
 
             struct ibv_wc wc;
