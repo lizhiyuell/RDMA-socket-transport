@@ -47,12 +47,12 @@ int main(){
             // if(count%1000==0) 
             // if(count%10000==0) 
             fprintf(stdout, "success with %d\n", count);
-            if(count==temp){
-                temp++;
-                continue;
-            }
-            fprintf(stdout, "error with %d, should be %d\n", count,temp);
-            return 0;
+            // if(count==temp){
+            //     temp++;
+            //     continue;
+            // }
+            // fprintf(stdout, "error with %d, should be %d\n", count,temp);
+            // return 0;
         }
     }
     // clock_gettime(CLOCK_REALTIME, &time1);
