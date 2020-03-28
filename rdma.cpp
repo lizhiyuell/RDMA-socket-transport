@@ -649,7 +649,7 @@ if (rc) {
                 wr.sg_list = &sge;
                 wr.num_sge = 1;
                 int index = wr.wr_id;
-                printf("recv index %d\n", index);
+                // printf("recv index %d\n", index);
 
                 sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + index*BufferSize);
                 sge.length = BufferSize;
@@ -660,15 +660,15 @@ if (rc) {
             }
         }
         // print the mem info
-        printf("get mem info:\n");
-        char temp;
-        for(int i=0;i<10;i++){
-            for(int j=0;j<10;j++){
-                memcpy(&temp, rrdma->memgt->rdma_recv_region+i*BufferSize+j,1);
-                printf("%x ",temp);
-            }
-            printf("\n");
-        }
+        // printf("get mem info:\n");
+        // char temp;
+        // for(int i=0;i<10;i++){
+        //     for(int j=0;j<10;j++){
+        //         memcpy(&temp, rrdma->memgt->rdma_recv_region+i*BufferSize+j,1);
+        //         printf("%x ",temp);
+        //     }
+        //     printf("\n");
+        // }
 
         free(wc_array);
         // release

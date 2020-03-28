@@ -43,10 +43,10 @@ int main(){
         while(rc<=0) rc = client_sock1.recv(msg1, BufferSize, 0);
         for(int k=0;k<rc;k++){
             memcpy(&count, msg1+k*BufferSize, sizeof(int));
-            if(count==(10-1)) return 0;
+            if(count==(10000-1)) return 0;
             // if(count%1000==0) 
-            // if(count%10000==0) 
-            fprintf(stdout, "success with %d\n", count);
+            if(count%10000==0) 
+            // fprintf(stdout, "success with %d\n", count);
             // if(count==temp){
             //     temp++;
             //     continue;
