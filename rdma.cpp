@@ -590,6 +590,7 @@ if (rc) {
         index = send_poll_stack.top();
         send_poll_stack.pop();
         sem_post(&(rrdma->memgt->mutex_send));
+        printf("send index %d\n", index);
 
         // fprintf(stdout, "send side: get index %d\n", index);
         memcpy(rrdma->memgt->rdma_send_region + index*BufferSize, buf, len);
@@ -648,6 +649,7 @@ if (rc) {
                 wr.sg_list = &sge;
                 wr.num_sge = 1;
                 int index = wr.wr_id;
+                printf("recv index %d\n", index);
 
                 sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + index*BufferSize);
                 sge.length = BufferSize;
