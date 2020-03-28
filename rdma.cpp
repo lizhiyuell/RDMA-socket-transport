@@ -590,7 +590,7 @@ if (rc) {
         index = send_poll_stack.top();
         send_poll_stack.pop();
         sem_post(&(rrdma->memgt->mutex_send));
-        printf("send index %d\n", index);
+        // printf("send index %d\n", index);
 
         // fprintf(stdout, "send side: get index %d\n", index);
         memcpy(rrdma->memgt->rdma_send_region + index*BufferSize, buf, len);
