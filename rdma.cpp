@@ -659,6 +659,17 @@ if (rc) {
                 TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
             }
         }
+        // print the mem info
+        printf("get mem info:\n");
+        char temp;
+        for(int i=0;i<10;i++){
+            for(int j=0;j<10;j++){
+                memcpy(&temp, rrdma->memgt->rdma_recv_region+i*BufferSize+j,1);
+                printf("%x ",temp);
+            }
+            printf("\n");
+        }
+
         free(wc_array);
         // release
         recv_flow_control += num;
