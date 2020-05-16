@@ -141,15 +141,15 @@ using namespace rdma;
         int bind_port;
 
         // before seperate addr
-        // fprintf(stdout, "[Debug] before seperate func, %s\n", addr);
+        fprintf(stdout, "[Debug] before seperate func, %s\n", addr);
         seperate_addr(addr, ip_addr, bind_port);
         sock_port = bind_port;
         strcpy(sock_addr, ip_addr);
         // fprintf(stdout, "[Debug] in inner func of %s: after sperate addr\n", addr);
-        // fprintf(stdout, "seperate port number is %d\n", bind_port);
-        // fprintf(stdout, "[Debug] in inner func of %s: bind port is %d\n", addr, bind_port);
+        fprintf(stdout, "seperate port number is %d\n", bind_port);
+        fprintf(stdout, "[Debug] in inner func of %s: bind port is %d\n", addr, bind_port);
         sock = sock_daemon_connect(bind_port);
-        // fprintf(stdout, "[Debug] in inner func of %s: after TCP bind\n", addr);
+        fprintf(stdout, "[Debug] in inner func of %s: after TCP bind\n", addr);
         // fprintf(stdout, "sock number is %d\n", sock);
 
         if (sock < 0) {
@@ -159,14 +159,14 @@ using namespace rdma;
         // fprintf(stdout, "TCP connection was established\n");
 
         qp_connection(1);
-        // fprintf(stdout, "[Debug] in inner func of %s: after qp connection\n", addr);
+        fprintf(stdout, "[Debug] in inner func of %s: after qp connection\n", addr);
         struct ibv_wc wc;
         memcpy(rrdma->memgt->rdma_send_region, rrdma->memgt->rdma_recv_mr, sizeof(struct ibv_mr));
         post_send( 50, sizeof(struct ibv_mr), 0 ); 
-        // fprintf(stdout, "[Debug] in inner func of %s: after send\n", addr); 
+        fprintf(stdout, "[Debug] in inner func of %s: after send\n", addr); 
         get_wc( &wc, 0 );
         post_recv( 20, sizeof(struct ibv_mr));
-        // fprintf(stdout, "[Debug] in inner func of %s: after recv\n", addr);
+        fprintf(stdout, "[Debug] in inner func of %s: after recv\n", addr);
         get_wc( &wc, 1 );
         memcpy( &rrdma->memgt->peer_mr, rrdma->memgt->rdma_recv_region, sizeof(struct ibv_mr) );
         // printf("peer add: %p length: %d\n", rrdma->memgt->peer_mr.addr, rrdma->memgt->peer_mr.length);
