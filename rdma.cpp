@@ -145,54 +145,54 @@ using namespace rdma;
         seperate_addr(addr, ip_addr, bind_port);
         sock_port = bind_port;
         strcpy(sock_addr, ip_addr);
-        // // fprintf(stdout, "[Debug] in inner func of %s: after sperate addr\n", addr);
-        // fprintf(stdout, "seperate port number is %d\n", bind_port);
-        // fprintf(stdout, "[Debug] in inner func of %s: bind port is %d\n", addr, bind_port);
-        // sock = sock_daemon_connect(bind_port);
-        // fprintf(stdout, "[Debug] in inner func of %s: after TCP bind\n", addr);
-        // fprintf(stdout, "sock number is %d\n", sock);
+        // fprintf(stdout, "[Debug] in inner func of %s: after sperate addr\n", addr);
+        fprintf(stdout, "seperate port number is %d\n", bind_port);
+        fprintf(stdout, "[Debug] in inner func of %s: bind port is %d\n", addr, bind_port);
+        sock = sock_daemon_connect(bind_port);
+        fprintf(stdout, "[Debug] in inner func of %s: after TCP bind\n", addr);
+        fprintf(stdout, "sock number is %d\n", sock);
 
-        // if (sock < 0) {
-        //     fprintf(stderr, "failed to establish TCP connection with client on port %d\n", bind_port);
-        //     assert(false);
-        // }
-        // // fprintf(stdout, "TCP connection was established\n");
+        if (sock < 0) {
+            fprintf(stderr, "failed to establish TCP connection with client on port %d\n", bind_port);
+            assert(false);
+        }
+        // fprintf(stdout, "TCP connection was established\n");
 
-        // qp_connection(1);
-        // fprintf(stdout, "[Debug] in inner func of %s: after qp connection\n", addr);
-        // struct ibv_wc wc;
-        // memcpy(rrdma->memgt->rdma_send_region, rrdma->memgt->rdma_recv_mr, sizeof(struct ibv_mr));
-        // post_send( 50, sizeof(struct ibv_mr), 0 ); 
-        // fprintf(stdout, "[Debug] in inner func of %s: after send\n", addr); 
-        // get_wc( &wc, 0 );
-        // post_recv( 20, sizeof(struct ibv_mr));
-        // fprintf(stdout, "[Debug] in inner func of %s: after recv\n", addr);
-        // get_wc( &wc, 1 );
-        // memcpy( &rrdma->memgt->peer_mr, rrdma->memgt->rdma_recv_region, sizeof(struct ibv_mr) );
-        // // printf("peer add: %p length: %d\n", rrdma->memgt->peer_mr.addr, rrdma->memgt->peer_mr.length);
+        qp_connection(1);
+        fprintf(stdout, "[Debug] in inner func of %s: after qp connection\n", addr);
+        struct ibv_wc wc;
+        memcpy(rrdma->memgt->rdma_send_region, rrdma->memgt->rdma_recv_mr, sizeof(struct ibv_mr));
+        post_send( 50, sizeof(struct ibv_mr), 0 ); 
+        fprintf(stdout, "[Debug] in inner func of %s: after send\n", addr); 
+        get_wc( &wc, 0 );
+        post_recv( 20, sizeof(struct ibv_mr));
+        fprintf(stdout, "[Debug] in inner func of %s: after recv\n", addr);
+        get_wc( &wc, 1 );
+        memcpy( &rrdma->memgt->peer_mr, rrdma->memgt->rdma_recv_region, sizeof(struct ibv_mr) );
+        // printf("peer add: %p length: %d\n", rrdma->memgt->peer_mr.addr, rrdma->memgt->peer_mr.length);
 
-        // // printf("bind port success with remote side\n");
-        // // add additional recv
-        // for( int i = 0; i < MAX_CQ_NUM; i ++ ){
-        //     struct ibv_recv_wr wr, *bad_wr = NULL;
-        //     struct ibv_sge sge;
-        //     wr.wr_id = i;
-        //     wr.next = NULL;
-        //     wr.sg_list = &sge;
-        //     wr.num_sge = 1; 
+        // printf("bind port success with remote side\n");
+        // add additional recv
+        for( int i = 0; i < MAX_CQ_NUM; i ++ ){
+            struct ibv_recv_wr wr, *bad_wr = NULL;
+            struct ibv_sge sge;
+            wr.wr_id = i;
+            wr.next = NULL;
+            wr.sg_list = &sge;
+            wr.num_sge = 1; 
 
-        //     sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
-        //     sge.length = BufferSize;
-        //     sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
+            sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
+            sge.length = BufferSize;
+            sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
-        //     TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
-        // }
+            TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
+        }
 
-        // connect_flag = 1;
-        // fprintf(stdout, "bind finish for %s:%d\n", ip_addr, bind_port);
+        connect_flag = 1;
+        fprintf(stdout, "bind finish for %s:%d\n", ip_addr, bind_port);
         
-        // free(ip_addr);
-        // ip_addr = NULL;
+        free(ip_addr);
+        ip_addr = NULL;
 }
 
     void* rdma::connect_thread_func(void *args){
@@ -216,7 +216,7 @@ using namespace rdma;
 
         // fprintf(stdout, "starting connecting to the remote side ...\n");
         // fprintf(stdout, "[Debug] in inner func: starting connecting port on %s\n", addr);
-        char* ip_addr;
+        char* ip_addr = (char*)malloc(20);
         int connect_port;
         fprintf(stdout, "[Debug] before seperate func, %s\n", addr);
         seperate_addr(addr, ip_addr, connect_port);
