@@ -90,8 +90,8 @@ using namespace rdma;
 
     socket::~socket(){
 
-        fprintf(stdout, "[Info] The end of %s:%d !!\n", this->sock_addr, this->sock_port);
-        join the threads
+        // fprintf(stdout, "[Info] The end of %s:%d !!\n", this->sock_addr, this->sock_port);
+        // join the threads
         if(connect_flag == 1) pthread_join( bind_thread, NULL );
         if(connect_flag == 2) pthread_join( connect_thread, NULL );
 
