@@ -90,16 +90,16 @@ using namespace rdma;
 
     socket::~socket(){
 
-        // fprintf(stdout, "[Info] The end of %s:%d !!\n", this->sock_addr, this->sock_port);
-        // join the threads
-        if(connect_flag == 1) pthread_join( bind_thread, NULL );
-        if(connect_flag == 2) pthread_join( connect_thread, NULL );
+        // // fprintf(stdout, "[Info] The end of %s:%d !!\n", this->sock_addr, this->sock_port);
+        // // join the threads
+        // if(connect_flag == 1) pthread_join( bind_thread, NULL );
+        // if(connect_flag == 2) pthread_join( connect_thread, NULL );
 
-        // fprintf(stdout, "destroying current socket ...\n");
-        // destroy qp management
-        ibv_destroy_qp(rrdma->qp);
+        // // fprintf(stdout, "destroying current socket ...\n");
+        // // destroy qp management
+        // ibv_destroy_qp(rrdma->qp);
         
-        // destroy memory management
+        // // destroy memory management
         // free(rrdma->memgt->send_poll_stack); rrdma->memgt->send_poll_stack = NULL;
         // free(rrdma->memgt->recv_poll_stack); rrdma->memgt->recv_poll_stack = NULL;
 
