@@ -137,7 +137,7 @@ using namespace rdma;
     void socket::inner_bind( const char *addr ){
 
         // bind TCP port for data exchange
-        char* ip_addr;
+        char* ip_addr = (char*)malloc(20);
         int bind_port;
 
         // before seperate addr
@@ -695,7 +695,7 @@ if (rc) {
         // initialize
         // for(int i=0;i<20;i++) temp_str[i]='\0';
         // fprintf(stdout, "[func] db 2\n");
-        ip_addr = (char*) malloc(20);
+        // ip_addr = (char*) malloc(20);
         while(addr[i]!='\0'){
             if(addr[i]=='/'){
                 i+=2;
