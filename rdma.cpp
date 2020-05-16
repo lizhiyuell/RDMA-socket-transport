@@ -621,7 +621,7 @@ if (rc) {
         // int flag=1;
         int recv_len = 0;
         // while(flag){
-        int num = ibv_poll_cq(cq, recv_poll_size, wc_array);
+        int num = ibv_poll_cq(cq, my_recv_poll_size, wc_array);
         if( num<=0 ){
             free(wc_array);
             return 0;
