@@ -147,7 +147,7 @@ namespace rdma{
 		int sock;  // sock to exchange data with the remote side
 		int ib_gid;
 
-		void seperate_addr(const char *addr, char* &ip_addr, int& port_number);
+		void seperate_addr(const char *addr, char* ip_addr, int* port_number);
 
 		void qp_connection(int is_server);
 
