@@ -221,7 +221,7 @@ using namespace rdma;
         // fprintf(stdout, "[Debug] before seperate func, %s\n", addr);
         seperate_addr(addr, ip_addr, connect_port);
         sock_port = connect_port;
-        strcpy(sock_addr, ip_addr);
+        // strcpy(sock_addr, ip_addr);
         // int connect_count = 0;
         sock = -1;
         // fprintf(stdout, "[Debug] in inner_connect of %s, ip and port are: %s, %d\n", addr, ip_addr, connect_port);
