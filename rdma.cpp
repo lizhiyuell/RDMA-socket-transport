@@ -220,7 +220,7 @@ using namespace rdma;
         int connect_port;
         // fprintf(stdout, "[Debug] before seperate func, %s\n", addr);
         seperate_addr(addr, ip_addr, connect_port);
-        sock_port = connect_port;
+        // sock_port = connect_port;
         // strcpy(sock_addr, ip_addr);
         // int connect_count = 0;
         sock = -1;
