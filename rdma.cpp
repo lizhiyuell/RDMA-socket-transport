@@ -142,7 +142,7 @@ using namespace rdma;
 
         // before seperate addr
         fprintf(stdout, "[Debug] before seperate func, %s\n", addr);
-        seperate_addr(addr, ip_addr, bind_port);
+        seperate_addr(addr, ip_addr, &bind_port);
         sock_port = bind_port;
         strcpy(sock_addr, ip_addr);
         // fprintf(stdout, "[Debug] in inner func of %s: after sperate addr\n", addr);
@@ -219,7 +219,7 @@ using namespace rdma;
         char* ip_addr = (char*)malloc(20);
         int connect_port;
         fprintf(stdout, "[Debug] before seperate func, %s\n", addr);
-        seperate_addr(addr, ip_addr, connect_port);
+        seperate_addr(addr, ip_addr, &connect_port);
         sock_port = connect_port;
         strcpy(sock_addr, ip_addr);
         int connect_count = 0;
@@ -687,7 +687,7 @@ if (rc) {
         return num;
     }
 
-    void socket::seperate_addr(const char *addr,  char* &ip_addr, int& port_number){
+    void socket::seperate_addr(const char *addr,  char* &ip_addr, int* port_number){
         
         // fprintf(stdout, "starting to seperate ip addr: %s\n", addr);
         int i=0;
@@ -706,7 +706,7 @@ if (rc) {
                 }
                 temp_str[j]='\0';
                 i=i+j+1;
-                port_number=atoi(&addr[i]);
+                *port_number=atoi(&addr[i]);
                 strcpy(ip_addr, temp_str);
                 break;
             }
