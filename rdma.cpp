@@ -121,6 +121,7 @@ using namespace rdma;
 
     void* rdma::bind_thread_func(void *args){
         param_t *param = (param_t *) args;
+        fprintf(stdout, "[Debug] In func thread, %s\n", param->addr);
         param->sock_ptr->inner_bind(param->addr);
     }
 
