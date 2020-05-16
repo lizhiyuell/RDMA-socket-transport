@@ -19,75 +19,72 @@ using namespace rdma;
         rrdma->memgt = (struct memory_management *) malloc(sizeof( struct memory_management ));
         rrdma->send_count = 0;
 
-        struct ibv_device **dev_list = NULL;
-        int num_devices;        
-        // struct ibv_qp_init_attr qp_init_attr;
-        struct ibv_device *ib_dev = NULL;
-        // size_t 	size;
+        // struct ibv_device **dev_list = NULL;
+        // int num_devices;        
+        // // struct ibv_qp_init_attr qp_init_attr;
+        // struct ibv_device *ib_dev = NULL;
+        // // size_t 	size;
         
-        // int mr_flags = 0;
-        // int cq_size = 0;
+        // // int mr_flags = 0;
+        // // int cq_size = 0;
         
-        char *dev_name = NULL;
+        // char *dev_name = NULL;
 
-        dev_list = ibv_get_device_list(&num_devices);
-        if (!dev_list) {
-            fprintf(stderr, "failed to get IB devices list\n");
-            assert(false);
-        }
+        // dev_list = ibv_get_device_list(&num_devices);
+        // if (!dev_list) {
+        //     fprintf(stderr, "failed to get IB devices list\n");
+        //     assert(false);
+        // }
 
-        /* if there isn't any IB device in host */
-        if (!num_devices) {
-            fprintf(stderr, "found %d device(s)\n", num_devices);
-            assert(false);
-        }
+        // /* if there isn't any IB device in host */
+        // if (!num_devices) {
+        //     fprintf(stderr, "found %d device(s)\n", num_devices);
+        //     assert(false);
+        // }
 
-        // fprintf(stdout, "found %d device(s)\n", num_devices);
+        // // fprintf(stdout, "found %d device(s)\n", num_devices);
     
-        int device_index;
-        for (device_index = 0; device_index < num_devices; device_index ++) {
-            ib_dev = dev_list[device_index];
+        // int device_index;
+        // for (device_index = 0; device_index < num_devices; device_index ++) {
+        //     ib_dev = dev_list[device_index];
 
-            /* get device handle */
-            rrdma->s_ctx->ctx = ibv_open_device(ib_dev);
-            if (!rrdma->s_ctx->ctx) {
-                fprintf(stderr, "failed to open device %s\n", dev_name);
-                continue;
-            }
+        //     /* get device handle */
+        //     rrdma->s_ctx->ctx = ibv_open_device(ib_dev);
+        //     if (!rrdma->s_ctx->ctx) {
+        //         fprintf(stderr, "failed to open device %s\n", dev_name);
+        //         continue;
+        //     }
 
-            /* query port properties  */
-            if (ibv_query_port(rrdma->s_ctx->ctx, ib_port, &rrdma->s_ctx->port_attr)) {
-                fprintf(stderr, "ibv_query_port on port %u failed\n", ib_port);
-                continue;
-            }
-            // fprintf(stdout, "%s phy %d\n", ibv_get_device_name(dev_list[device_index]), rrdma->s_ctx->port_attr.phys_state);
-            if( rrdma->s_ctx->port_attr.state == IBV_PORT_ACTIVE ){
-                break;
-            }
-        }
+        //     /* query port properties  */
+        //     if (ibv_query_port(rrdma->s_ctx->ctx, ib_port, &rrdma->s_ctx->port_attr)) {
+        //         fprintf(stderr, "ibv_query_port on port %u failed\n", ib_port);
+        //         continue;
+        //     }
+        //     // fprintf(stdout, "%s phy %d\n", ibv_get_device_name(dev_list[device_index]), rrdma->s_ctx->port_attr.phys_state);
+        //     if( rrdma->s_ctx->port_attr.state == IBV_PORT_ACTIVE ){
+        //         break;
+        //     }
+        // }
 
 
-        //	/* We are now done with device list, free it */
-        // ibv_free_device_list(dev_list);
-        // dev_list = NULL;
-        // ib_dev = NULL;
+        // //	/* We are now done with device list, free it */
+        // // ibv_free_device_list(dev_list);
+        // // dev_list = NULL;
+        // // ib_dev = NULL;
 
-        /* query port properties  */
-        if (ibv_query_gid(rrdma->s_ctx->ctx, ib_port, gid, &rrdma->s_ctx->gid)) {
-            fprintf(stderr, "ibv_query_gid on port %u gid %d failed\n", ib_port, gid);
-            assert(false);
-        }
-        rrdma->s_ctx->gidIndex = gid;
-        // fprintf(stdout, "before socket build finish\n");
-        // initialize the stack
-        for(int ii=0;ii<MAX_CQ_NUM;ii++){
-            send_poll_queue.push(MAX_CQ_NUM-ii-1);  // inverse order, making 0 on the top
-        }
-        // init mutex
-        sem_init(&(rrdma->memgt->mutex_send), 0, 1);
-        // fprintf(stdout, "socket build finish\n");
+        // /* query port properties  */
+        // if (ibv_query_gid(rrdma->s_ctx->ctx, ib_port, gid, &rrdma->s_ctx->gid)) {
+        //     fprintf(stderr, "ibv_query_gid on port %u gid %d failed\n", ib_port, gid);
+        //     assert(false);
+        // }
+        // rrdma->s_ctx->gidIndex = gid;
+        // // initialize the stack
+        // for(int ii=0;ii<MAX_CQ_NUM;ii++){
+        //     send_poll_queue.push(MAX_CQ_NUM-ii-1);  // inverse order, making 0 on the top
+        // }
+        // // init mutex
+        // sem_init(&(rrdma->memgt->mutex_send), 0, 1);
 
-        fprintf(stdout, "[Info] send poll size is %d, recv poll size is %d\n", POLL_SIZE, POLL_SIZE);
     }
 
 
@@ -95,31 +92,31 @@ using namespace rdma;
 
         // fprintf(stdout, "[Info] The end of %s:%d !!\n", this->sock_addr, this->sock_port);
         // join the threads
-        if(connect_flag == 1) pthread_join( bind_thread, NULL );
-        if(connect_flag == 2) pthread_join( connect_thread, NULL );
+        // if(connect_flag == 1) pthread_join( bind_thread, NULL );
+        // if(connect_flag == 2) pthread_join( connect_thread, NULL );
 
-        // fprintf(stdout, "destroying current socket ...\n");
-        // destroy qp management
-        ibv_destroy_qp(rrdma->qp);
+        // // fprintf(stdout, "destroying current socket ...\n");
+        // // destroy qp management
+        // ibv_destroy_qp(rrdma->qp);
         
-        // destroy memory management
-        // free(rrdma->memgt->send_poll_stack); rrdma->memgt->send_poll_stack = NULL;
-        // free(rrdma->memgt->recv_poll_stack); rrdma->memgt->recv_poll_stack = NULL;
+        // // destroy memory management
+        // // free(rrdma->memgt->send_poll_stack); rrdma->memgt->send_poll_stack = NULL;
+        // // free(rrdma->memgt->recv_poll_stack); rrdma->memgt->recv_poll_stack = NULL;
 
-        TEST_NZ(ibv_dereg_mr(rrdma->memgt->rdma_send_mr));
-        free(rrdma->memgt->rdma_send_region);  rrdma->memgt->rdma_send_region = NULL;
-        TEST_NZ(ibv_dereg_mr(rrdma->memgt->rdma_recv_mr));
-        free(rrdma->memgt->rdma_recv_region);  rrdma->memgt->rdma_recv_region = NULL;
-        free(rrdma->memgt); rrdma->memgt = NULL;
+        // TEST_NZ(ibv_dereg_mr(rrdma->memgt->rdma_send_mr));
+        // free(rrdma->memgt->rdma_send_region);  rrdma->memgt->rdma_send_region = NULL;
+        // TEST_NZ(ibv_dereg_mr(rrdma->memgt->rdma_recv_mr));
+        // free(rrdma->memgt->rdma_recv_region);  rrdma->memgt->rdma_recv_region = NULL;
+        // free(rrdma->memgt); rrdma->memgt = NULL;
 
-        // destory connection
-        TEST_NZ(ibv_destroy_cq(rrdma->s_ctx->recv_cq));
-        TEST_NZ(ibv_destroy_cq(rrdma->s_ctx->send_cq));
-        TEST_NZ(ibv_destroy_comp_channel(rrdma->s_ctx->comp_channel));
-        ibv_dealloc_pd(rrdma->s_ctx->pd);
-	    ibv_close_device(rrdma->s_ctx->ctx);
-        free(rrdma->s_ctx);
-        free(rrdma);
+        // // destory connection
+        // TEST_NZ(ibv_destroy_cq(rrdma->s_ctx->recv_cq));
+        // TEST_NZ(ibv_destroy_cq(rrdma->s_ctx->send_cq));
+        // TEST_NZ(ibv_destroy_comp_channel(rrdma->s_ctx->comp_channel));
+        // ibv_dealloc_pd(rrdma->s_ctx->pd);
+	    // ibv_close_device(rrdma->s_ctx->ctx);
+        // free(rrdma->s_ctx);
+        // free(rrdma);
     }
 
     void* rdma::bind_thread_func(void *args){
