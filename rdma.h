@@ -13,19 +13,21 @@
 #include <stack>
 #include <map>
 #include "semaphore.h"
-#include <time.h>
 #include <queue>
+
 
 // RDMA definition
 #define ib_port 1
 // #define ib_gid 3
-#define qp_size 2000 // maximum of outstanding send/recv requests
-#define cq_size 2000
+#define qp_size 500 // maximum of outstanding send/recv requests
+#define cq_size 500
 #define TEST_Z(x) assert(x)
 #define TEST_NZ(x) assert(!x)
 #define __polling
-#define BufferSize 16  // send/recv  size for each node
-#define MAX_CQ_NUM 1500
+#define BufferSize MSG_SIZE_MAX  // send/recv  size for each node
+#define POLL_SIZE 50
+int recv_poll_size = POLL_SIZE;
+int send_poll_size = POLL_SIZE;
 // RDMA definition
 
 namespace rdma{
@@ -85,6 +87,7 @@ namespace rdma{
 		struct memory_management *memgt;
 		// struct qp_management *qpmgt;
 		struct ibv_qp *qp;
+		int send_count; // count for send request to pull send cq
 	}rdma_m;
 	
 	struct cm_con_data_t {
@@ -130,18 +133,14 @@ namespace rdma{
 		int connect_flag; // a flag to show whether connection has been built. 0 for no, 1 for bind and 2 for connect
 		param_t param_bind, param_connect;
 		char ip_addr_temp[50];
-		int _count;
-		int send_cq_count;
 		// socket infomation
 		int sock_port;
 		char sock_addr[50];
 		// memory poll index stack
-		// std::stack<int> send_poll_stack;
 		std::queue<int> send_poll_queue;
-		// release
-		int send_flow_control; // the number of outstanding send request
-		int recv_flow_control; // the number of outstanding recv request
-		// release
+
+		int send_flow_control;
+		int recv_flow_control;
 
 		int sock;  // sock to exchange data with the remote side
 		int ib_gid;
