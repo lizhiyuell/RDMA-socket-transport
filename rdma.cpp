@@ -687,7 +687,7 @@ if (rc) {
         return num;
     }
 
-    void socket::seperate_addr(const char *addr,  char* &ip_addr, int* port_number){
+    void socket::seperate_addr(const char *addr,  char* ip_addr, int* port_number){
         
         // fprintf(stdout, "starting to seperate ip addr: %s\n", addr);
         int i=0;
