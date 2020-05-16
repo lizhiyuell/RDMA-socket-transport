@@ -7,7 +7,7 @@ int main(){
     char remote_addr1[40] = "tcp://172.23.12.124:8888";
     char msg1[BufferSize * MAX_CQ_NUM] = "This is the client side1";
     class rdma::socket client_sock1 = rdma::socket(5);
-    client_sock1.connect(remote_addr1);
+    // client_sock1.connect(remote_addr1);
     // sleep(100);
     int rc;
     // rc = -1;

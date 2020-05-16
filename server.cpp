@@ -6,7 +6,7 @@ int main(){
     std::cout<<"This is the server side"<<std::endl;
     char local_addr1[40] = "tcp://172.23.12.124:8888";
     class rdma::socket server_sock1 = rdma::socket(3);
-    server_sock1.bind(local_addr1);
+    // server_sock1.bind(local_addr1);
     std::cout<<"bind port success"<<std::endl;
     int rc = 0;
     int count = 0;
