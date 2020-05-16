@@ -72,18 +72,18 @@ using namespace rdma;
         // dev_list = NULL;
         // ib_dev = NULL;
 
-        // /* query port properties  */
-        // if (ibv_query_gid(rrdma->s_ctx->ctx, ib_port, gid, &rrdma->s_ctx->gid)) {
-        //     fprintf(stderr, "ibv_query_gid on port %u gid %d failed\n", ib_port, gid);
-        //     assert(false);
-        // }
-        // rrdma->s_ctx->gidIndex = gid;
-        // // initialize the stack
-        // for(int ii=0;ii<MAX_CQ_NUM;ii++){
-        //     send_poll_queue.push(MAX_CQ_NUM-ii-1);  // inverse order, making 0 on the top
-        // }
-        // // init mutex
-        // sem_init(&(rrdma->memgt->mutex_send), 0, 1);
+        /* query port properties  */
+        if (ibv_query_gid(rrdma->s_ctx->ctx, ib_port, gid, &rrdma->s_ctx->gid)) {
+            fprintf(stderr, "ibv_query_gid on port %u gid %d failed\n", ib_port, gid);
+            assert(false);
+        }
+        rrdma->s_ctx->gidIndex = gid;
+        // initialize the stack
+        for(int ii=0;ii<MAX_CQ_NUM;ii++){
+            send_poll_queue.push(MAX_CQ_NUM-ii-1);  // inverse order, making 0 on the top
+        }
+        // init mutex
+        sem_init(&(rrdma->memgt->mutex_send), 0, 1);
 
     }
 
