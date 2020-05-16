@@ -31,8 +31,8 @@
 
 
 
-int recv_poll_size = POLL_SIZE;
-int send_poll_size = POLL_SIZE;
+int my_recv_poll_size = POLL_SIZE;
+int my_send_poll_size = POLL_SIZE;
 // RDMA definition
 
 namespace rdma{
