@@ -127,6 +127,7 @@ using namespace rdma;
     int socket::bind( const char *addr ){
 
         // fprintf(stdout, "running bind function in the background\n");
+        fprintf(stdout, "[Debug] In func find, %s\n", addr);
         strcpy(ip_addr_temp, addr);
         this->param_bind.addr = ip_addr_temp;
         this->param_bind.sock_ptr = this;
