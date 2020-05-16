@@ -121,7 +121,6 @@ using namespace rdma;
 
     void* rdma::bind_thread_func(void *args){
         param_t *param = (param_t *) args;
-        fprintf(stdout, "[Debug] In func thread, %s\n", param->addr);
         param->sock_ptr->inner_bind(param->addr);
     }
 
@@ -138,6 +137,7 @@ using namespace rdma;
 
     void socket::inner_bind( const char *addr ){
 
+        fprintf(stdout, "[Debug] start, %s\n", addr);
         // bind TCP port for data exchange
         char* ip_addr = (char*)malloc(20);
         int bind_port;

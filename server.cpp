@@ -12,6 +12,7 @@ int main(){
     int rc = 0;
     int count = 0;
     char msg[5];
+    sleep(5);
     // struct timespec time1 = {0, 0};
     // clock_gettime(CLOCK_REALTIME, &time1);
     // long int start = time1.tv_sec*(int)1e9+time1.tv_nsec;
