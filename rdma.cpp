@@ -220,55 +220,55 @@ using namespace rdma;
         int connect_port;
         // fprintf(stdout, "[Debug] before seperate func, %s\n", addr);
         seperate_addr(addr, ip_addr, connect_port);
-        // sock_port = connect_port;
+        sock_port = connect_port;
         // strcpy(sock_addr, ip_addr);
         // int connect_count = 0;
-        sock = -1;
-        // fprintf(stdout, "[Debug] in inner_connect of %s, ip and port are: %s, %d\n", addr, ip_addr, connect_port);
-        while (1) {
-            sock = sock_client_connect(ip_addr, connect_port);
-            if (sock>=0) break;
-            // fprintf(stdout, "failed to establish TCP connection to server %s, port %d. Try another time ...\n", ip_addr, connect_port);
-            usleep(10);
-            // connect_count ++;
-            // if(connect_count >= 10){
-            //     fprintf(stderr, "failed to establish TCP connection with client on port %d\n", connect_port);
-            //     assert(false);
-            // }
-        }
-        // fprintf(stdout, "TCP connection was established\n");
+        // sock = -1;
+        // // fprintf(stdout, "[Debug] in inner_connect of %s, ip and port are: %s, %d\n", addr, ip_addr, connect_port);
+        // while (1) {
+        //     sock = sock_client_connect(ip_addr, connect_port);
+        //     if (sock>=0) break;
+        //     // fprintf(stdout, "failed to establish TCP connection to server %s, port %d. Try another time ...\n", ip_addr, connect_port);
+        //     usleep(10);
+        //     // connect_count ++;
+        //     // if(connect_count >= 10){
+        //     //     fprintf(stderr, "failed to establish TCP connection with client on port %d\n", connect_port);
+        //     //     assert(false);
+        //     // }
+        // }
+        // // fprintf(stdout, "TCP connection was established\n");
         
 
-        qp_connection(0);
+        // qp_connection(0);
 
-        struct ibv_wc wc;
-        post_recv( 20, sizeof(struct ibv_mr)); 
-        get_wc( &wc, 1 ); 
-        memcpy( &rrdma->memgt->peer_mr, rrdma->memgt->rdma_recv_region, sizeof(struct ibv_mr) );
-        memcpy( rrdma->memgt->rdma_send_region, rrdma->memgt->rdma_recv_mr, sizeof(struct ibv_mr) );
-        post_send( 50, sizeof(struct ibv_mr), 0 );
-        get_wc( &wc, 0 );  // problem exists here.
-        // printf("connect port success with remote side\n");
-        // add additional recv
-        for( int i = 0; i < MAX_CQ_NUM; i ++ ){
-            struct ibv_recv_wr wr, *bad_wr = NULL;
-            struct ibv_sge sge;
-            wr.wr_id = i;
-            wr.next = NULL;
-            wr.sg_list = &sge;
-            wr.num_sge = 1; 
+        // struct ibv_wc wc;
+        // post_recv( 20, sizeof(struct ibv_mr)); 
+        // get_wc( &wc, 1 ); 
+        // memcpy( &rrdma->memgt->peer_mr, rrdma->memgt->rdma_recv_region, sizeof(struct ibv_mr) );
+        // memcpy( rrdma->memgt->rdma_send_region, rrdma->memgt->rdma_recv_mr, sizeof(struct ibv_mr) );
+        // post_send( 50, sizeof(struct ibv_mr), 0 );
+        // get_wc( &wc, 0 );  // problem exists here.
+        // // printf("connect port success with remote side\n");
+        // // add additional recv
+        // for( int i = 0; i < MAX_CQ_NUM; i ++ ){
+        //     struct ibv_recv_wr wr, *bad_wr = NULL;
+        //     struct ibv_sge sge;
+        //     wr.wr_id = i;
+        //     wr.next = NULL;
+        //     wr.sg_list = &sge;
+        //     wr.num_sge = 1; 
 
-            sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
-            sge.length = BufferSize;
-            sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
+        //     sge.addr = (uintptr_t)(rrdma->memgt->rdma_recv_region + i * BufferSize);		
+        //     sge.length = BufferSize;
+        //     sge.lkey = rrdma->memgt->rdma_recv_mr->lkey;
 
-            TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
-        }
+        //     TEST_NZ(ibv_post_recv(rrdma->qp, &wr, &bad_wr));
+        // }
 
-        connect_flag = 2;
-        fprintf(stdout, "connect finish for %s:%d\n", ip_addr, connect_port);
-        free(ip_addr);
-        ip_addr = NULL;
+        // connect_flag = 2;
+        // fprintf(stdout, "connect finish for %s:%d\n", ip_addr, connect_port);
+        // free(ip_addr);
+        // ip_addr = NULL;
     }
 
     void socket::qp_connection(int is_server){
