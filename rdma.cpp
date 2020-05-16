@@ -144,7 +144,7 @@ using namespace rdma;
         fprintf(stdout, "[Debug] before seperate func, %s\n", addr);
         seperate_addr(addr, ip_addr, bind_port);
         sock_port = bind_port;
-        // strcpy(sock_addr, ip_addr);
+        strcpy(sock_addr, ip_addr);
         // // fprintf(stdout, "[Debug] in inner func of %s: after sperate addr\n", addr);
         // fprintf(stdout, "seperate port number is %d\n", bind_port);
         // fprintf(stdout, "[Debug] in inner func of %s: bind port is %d\n", addr, bind_port);
