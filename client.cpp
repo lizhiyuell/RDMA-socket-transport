@@ -38,23 +38,23 @@ int main(){
     // struct timespec time1 = {0, 0};
     // clock_gettime(CLOCK_REALTIME, &time1);
     // long int start = time1.tv_sec*(int)1e9+time1.tv_nsec;
-    while(true){
-        rc = 0;
-        while(rc<=0) rc = client_sock1.recv(msg1, BufferSize, 0);
-        for(int k=0;k<rc;k++){
-            memcpy(&count, msg1+k*BufferSize, sizeof(int));
-            if(count==(10000000-1)) return 0;
-            // if(count%1000==0) 
-            if(count%10000==0) 
-            fprintf(stdout, "success with %d\n", count);
-            // if(count==temp){
-            //     temp++;
-            //     continue;
-            // }
-            // fprintf(stdout, "error with %d, should be %d\n", count,temp);
-            // return 0;
-        }
-    }
+    // while(true){
+    //     rc = 0;
+    //     while(rc<=0) rc = client_sock1.recv(msg1, BufferSize, 0);
+    //     for(int k=0;k<rc;k++){
+    //         memcpy(&count, msg1+k*BufferSize, sizeof(int));
+    //         if(count==(10000000-1)) return 0;
+    //         // if(count%1000==0) 
+    //         if(count%10000==0) 
+    //         fprintf(stdout, "success with %d\n", count);
+    //         // if(count==temp){
+    //         //     temp++;
+    //         //     continue;
+    //         // }
+    //         // fprintf(stdout, "error with %d, should be %d\n", count,temp);
+    //         // return 0;
+    //     }
+    // }
     // clock_gettime(CLOCK_REALTIME, &time1);
     // long int end = time1.tv_sec*(int)1e9+time1.tv_nsec;
     // long int dur = end - start;
