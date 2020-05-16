@@ -87,7 +87,7 @@ using namespace rdma;
         sem_init(&(rrdma->memgt->mutex_send), 0, 1);
         // fprintf(stdout, "socket build finish\n");
 
-        fprintf(stdout, "[Info] send poll size is %d, recv poll size is %d\n", my_recv_poll_size, my_recv_poll_size);
+        fprintf(stdout, "[Info] send poll size is %d, recv poll size is %d\n", POLL_SIZE, POLL_SIZE);
     }
 
 
@@ -594,7 +594,7 @@ if (rc) {
         sem_post(&(rrdma->memgt->mutex_send));
 
         rrdma->send_count++;
-        if(rrdma->send_count==my_recv_poll_size){
+        if(rrdma->send_count==POLL_SIZE){
             struct ibv_wc wc[cq_size];
             struct ibv_cq *cq;
             cq = rrdma->s_ctx->send_cq;
@@ -614,14 +614,14 @@ if (rc) {
         struct ibv_wc* wc_array;
         struct ibv_cq *cq;
 
-        wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * my_recv_poll_size );
+        wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * POLL_SIZE );
         cq = rrdma->s_ctx->recv_cq;
         fprintf(stdout, "[Debug] In func recv: point 0\n");	
 
         // int flag=1;
         int recv_len = 0;
         // while(flag){
-        int num = ibv_poll_cq(cq, my_recv_poll_size, wc_array);
+        int num = ibv_poll_cq(cq, POLL_SIZE, wc_array);
         if( num<=0 ){
             free(wc_array);
             return 0;
