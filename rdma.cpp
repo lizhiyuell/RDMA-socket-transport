@@ -100,8 +100,8 @@ using namespace rdma;
         ibv_destroy_qp(rrdma->qp);
         
         // destroy memory management
-        free(rrdma->memgt->send_poll_stack); rrdma->memgt->send_poll_stack = NULL;
-        free(rrdma->memgt->recv_poll_stack); rrdma->memgt->recv_poll_stack = NULL;
+        // free(rrdma->memgt->send_poll_stack); rrdma->memgt->send_poll_stack = NULL;
+        // free(rrdma->memgt->recv_poll_stack); rrdma->memgt->recv_poll_stack = NULL;
 
         TEST_NZ(ibv_dereg_mr(rrdma->memgt->rdma_send_mr));
         free(rrdma->memgt->rdma_send_region);  rrdma->memgt->rdma_send_region = NULL;
