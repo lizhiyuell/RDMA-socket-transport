@@ -30,9 +30,6 @@
 #define MSG_SIZE_MAX 4096
 
 
-
-int my_recv_poll_size = POLL_SIZE;
-int my_send_poll_size = POLL_SIZE;
 // RDMA definition
 
 namespace rdma{
