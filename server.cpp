@@ -31,6 +31,7 @@ void *data_send(void* argv){
     for(int count=0;count<test_num;count++){
         memcpy(msg_s, &count, sizeof(int));
         rc = -1;
+        printf("before send function\n");
         while(rc<0) rc = sock_send.send(msg_s, msg_size, 0);
         latency[count] = get_time();
         printf("send %d success\n", count);
