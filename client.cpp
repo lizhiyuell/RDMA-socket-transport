@@ -29,7 +29,7 @@ long int get_time(){
 void *data_recv(void* argv){
     struct param_t* myp = (struct param_t*) argv;
     
-    printf("start to execute recv thread\n");
+    // printf("start to execute recv thread\n");
     int rc;
     int rc2;
     for(int count=0;count<test_num;){
@@ -43,7 +43,7 @@ void *data_recv(void* argv){
             //
             rc2=-1;
             while(rc2<0)  rc2 = myp->s1->send(msg_s, msg_size, 0);
-            printf("finish with %d\n", num);
+            // printf("finish with %d\n", num);
         }
         count+=rc;
     }

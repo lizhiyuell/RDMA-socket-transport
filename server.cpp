@@ -32,10 +32,10 @@ void *data_send(void* argv){
     for(int count=0;count<test_num;count++){
         memcpy(msg_s, &count, sizeof(int));
         rc = -1;
-        printf("before send function\n");
+        // printf("before send function\n");
         while(rc<0) rc = sock_ptr->send(msg_s, msg_size, 0);
         latency[count] = get_time();
-        printf("send %d success\n", count);
+        // printf("send %d success\n", count);
     }
 }
 void *data_recv(void* argv){
@@ -50,7 +50,7 @@ void *data_recv(void* argv){
         memcpy(&num, msg_r+k*BufferSize, sizeof(int));
         long long int t2 = get_time();
         latency[num] = t2 - latency[num];
-        printf("finish with %d\n", num); 
+        // printf("finish with %d\n", num); 
         }
         count+=rc;
     }
@@ -89,8 +89,11 @@ int main(){
     dur = get_time() - dur;
     double tput = (double)test_num * 1e9 / (double)dur;
     printf("test finish!\ntput is %f\n", tput);
-    printf("the first ten latency is:\n");
-    for(int i=0;i<10;i++) printf("%lld\n", latency[i]);
+    // printf("the first ten latency is:\n");
+    // for(int i=0;i<10;i++) printf("%lld\n", latency[i]);
+    // order the latency
+    sort(latency, latency+test_num);
     printf("test finish");
+    for(int i=0;i<test_num;i++) printf("%lld\n", latency[i]);
     return 0;
 }
