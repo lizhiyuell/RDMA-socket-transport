@@ -10,9 +10,8 @@
 long long int latency[test_num];
 char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
-
-class rdma::socket sock_send;
-class rdma::socket sock_recv;
+class rdma::socket sock_send = rdma::socket(3);
+class rdma::socket sock_recv = rdma::socket(3);
 
 long int get_time(){
     struct timespec c_time;
@@ -59,8 +58,6 @@ int main(){
     std::cout<<"This is the server side"<<std::endl;
     char local_addr1[40] = "tcp://172.23.12.124:8888";
     char local_addr2[40] = "tcp://172.23.12.124:9999";
-    sock_send = rdma::socket(3);
-    sock_recv = rdma::socket(3);
     // std::cout<<"before bind port function"<<std::endl;
     sock_send.bind(local_addr1);
     sock_recv.bind(local_addr2);
