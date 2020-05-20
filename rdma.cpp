@@ -526,7 +526,8 @@ if (rc) {
     int socket::send(const void *buf, size_t len, int _flag){  // ok
 
         if(connect_flag == 0) return -1;
-            if(send_flow_control==MAX_CQ_NUM){
+        printf("In send, point 1\n");
+        if(send_flow_control==MAX_CQ_NUM){
             struct ibv_wc* wc_array;
             wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * MAX_CQ_NUM ); // can be smaller
             int num = ibv_poll_cq(rrdma->s_ctx->recv_cq, MAX_CQ_NUM, wc_array);
@@ -563,7 +564,7 @@ if (rc) {
         send_flow_control -= count;
         }
         send_flow_control++;
-
+        printf("In send, point 2\n");
         struct ibv_send_wr swr, *sbad_wr = NULL;
         struct ibv_sge sge;
         struct ibv_cq *cq;
