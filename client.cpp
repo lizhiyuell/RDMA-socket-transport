@@ -53,6 +53,7 @@ int main(){
     printf("connect started\n");
     int rc = 0;
     while(rc<=0) rc = sock_recv.recv(msg_r, 5, 0);
+    printf("pre recv success\n");
     if(msg_r[0]=='A'&&msg_r[1]=='C'&&msg_r[2]=='K'){
         printf("connection built\n");
         rc=0;
