@@ -615,7 +615,7 @@ if (rc) {
 
         wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * POLL_SIZE );
         cq = rrdma->s_ctx->recv_cq;
-        fprintf(stdout, "[Debug] In func recv: point 0\n");	
+        // fprintf(stdout, "[Debug] In func recv: point 0\n");	
 
         // int flag=1;
         int recv_len = 0;
