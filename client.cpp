@@ -15,7 +15,7 @@ class rdma::socket sock_recv = rdma::socket(5);
 struct param_t{
     class rdma::socket* s1;
     class rdma::socket* s2;
-}
+};
 
 long int get_time(){
     struct timespec c_time;
