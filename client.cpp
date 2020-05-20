@@ -52,12 +52,11 @@ int main(){
     sock_send.connect(remote_addr2);
     printf("connect started\n");
     int rc = 0;
-    char tmp[5];
-    while(rc<=0) rc = sock_recv.recv(tmp, 5, 0);
-    if(tmp[0]=='A'&&tmp[1]=='C'&&tmp[2]=='K'){
+    while(rc<=0) rc = sock_recv.recv(msg_r, 5, 0);
+    if(msg_r[0]=='A'&&msg_r[1]=='C'&&msg_r[2]=='K'){
         printf("connection built\n");
         rc=0;
-        while(rc<0) rc = sock_send.send(tmp, 5, 0);
+        while(rc<0) rc = sock_send.send(msg_r, 5, 0);
     }
     else{
         printf("Error when sync\n");
