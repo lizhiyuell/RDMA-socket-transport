@@ -92,7 +92,7 @@ int main(){
     // printf("the first ten latency is:\n");
     // for(int i=0;i<10;i++) printf("%lld\n", latency[i]);
     // order the latency
-    sort(latency, latency+test_num);
+    std::sort(latency, latency+test_num);
     printf("test finish");
     for(int i=0;i<test_num;i++) printf("%lld\n", latency[i]);
     return 0;
