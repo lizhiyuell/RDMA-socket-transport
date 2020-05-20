@@ -66,6 +66,7 @@ int main(){
     int rc = 0;
     char msg[5] = "ACK";
     while(rc<0) rc = sock_send.send(msg, 5, 0);
+    printf("pre send success\n");
     rc=0;
     while(rc<=0) rc = sock_recv.recv(msg, 5, 0);
     if(msg[0]=='A'&&msg[1]=='C'&&msg[2]=='K') printf("connection built\n");
