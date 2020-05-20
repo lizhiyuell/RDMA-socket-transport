@@ -30,7 +30,7 @@ void *data_send(void* argv){
     int rc;
     for(int count=0;count<test_num;count++){
         memcpy(msg_s, &count, sizeof(int));
-        rc = 0;
+        rc = -1;
         while(rc<0) rc = sock_send.send(msg_s, msg_size, 0);
         latency[count] = get_time();
         printf("send %d success\n", count);
@@ -59,11 +59,12 @@ int main(){
     char local_addr1[40] = "tcp://172.23.12.124:8888";
     char local_addr2[40] = "tcp://172.23.12.124:9999";
     // std::cout<<"before bind port function"<<std::endl;
+    class rdma::socket sock_send = rdma::socket(3);
     sock_send.bind(local_addr1);
     sock_recv.bind(local_addr2);
     // test if connection is build
     printf("bind started\n");
-    int rc = 0;
+    int rc = -1;
     char msg[5] = "ACK";
     while(rc<0) rc = sock_send.send(msg, 5, 0);
     printf("pre send success\n");
