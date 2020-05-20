@@ -1,46 +1,91 @@
-#include "rdma.h"
-#include <iostream>
+#include"rdma.h"
+#include<iostream>
+#include<algorithm>
+#include<time.h>
+#include<string.h>
+#include<pthread.h>
+
+#define msg_size 4*1024
+#define test_num 10
+long long int latency[test_num];
+char msg_s[msg_size];
+char msg_r[BufferSize * MAX_CQ_NUM];
+class rdma::socket sock_send = rdma::socket(3);
+class rdma::socket sock_recv = rdma::socket(3);
+
+long int get_time(){
+    struct timespec c_time;
+    clock_gettime(CLOCK_REALTIME, &c_time);
+    long int t1, t2;
+    t1 = c_time.tv_sec;
+    t2 = c_time.tv_nsec;
+    return t2 + t1*1000000000;
+}
+
+void *data_send(void* argv){
+    printf("start to execute send thread\n");
+    memset(msg_s, 0, msg_size);
+    // begin to test
+    // int count=0; // test finish count
+    int rc;
+    for(int count=0;count<test_num;count++){
+        memcpy(msg_s, &count, sizeof(int));
+        rc = 0;
+        while(rc<0) rc = sock_send.send(msg_s, msg_size, 0);
+        latency[count] = get_time();
+        printf("send %d success\n", count);
+    }
+}
+void *data_recv(void* argv){
+    printf("start to execute recv thread\n");
+    int rc;
+    for(int count=0;count<test_num;){
+        rc=0;
+        while(rc<=0) rc = sock_recv.recv(msg_r, BufferSize, 0);
+        int num;
+        for(int k=0;k<rc;k++){
+        memcpy(&num, msg_r+k*BufferSize, sizeof(int));
+        long long int t2 = get_time();
+        latency[num] = t2 - latency[num];
+        printf("finish with %d\n", num); 
+        }
+        count+=rc;
+    }
+}
 
 int main(){
 
     std::cout<<"This is the server side"<<std::endl;
     char local_addr1[40] = "tcp://172.23.12.124:8888";
-    class rdma::socket server_sock1 = rdma::socket(3);
-    std::cout<<"before bind port function"<<std::endl;
-    server_sock1.bind(local_addr1);
-    std::cout<<"bind port success"<<std::endl;
+    char local_addr2[40] = "tcp://172.23.12.124:9999";
+    // std::cout<<"before bind port function"<<std::endl;
+    sock_send.bind(local_addr1);
+    sock_recv.bind(local_addr2);
+    // test if connection is build
+    printf("bind started\n");
     int rc = 0;
-    int count = 0;
-    char msg[5];
-    // sleep(5);
-    // struct timespec time1 = {0, 0};
-    // clock_gettime(CLOCK_REALTIME, &time1);
-    // long int start = time1.tv_sec*(int)1e9+time1.tv_nsec;
-    for(int i=0;i<10000000;i++){
-        rc = -1;
-        memcpy(msg, &count, sizeof(int));
-        while(rc<0) rc = server_sock1.send(msg, 5, 0);
-        // fprintf(stdout, "send %d success\n", count);
-        count++;
-        // usleep(1);
+    char msg[5] = "ACK";
+    while(rc<0) rc = sock_send.send(msg, 5, 0);
+    rc=0;
+    while(rc<=0) rc = sock_recv.recv(msg, 5, 0);
+    if(msg[0]=='A'&&msg[1]=='C'&&msg[2]=='K') printf("connection built\n");
+    else{
+        printf("Error when sync\n");
+        return 0;
     }
-    // clock_gettime(CLOCK_REALTIME, &time1);
-    // long int end = time1.tv_sec*(int)1e9+time1.tv_nsec;
-    // long int dur = end - start;
-    // double tput = 100000.0/(double)dur;
-    // printf("duration: %d, tput: %f\n", dur, tput);
-    // rc = -1;
-    // while(rc<0) rc = server_sock1.send(msg1, 5, 0);
-    // sleep(2);
-    // rc = -1;
-    // while(rc<0) rc = server_sock1.send(msg2, 5, 0);
-    // // sleep(10);
-    // sleep(2);
-    // rc = -1;
-    // while(rc<0) rc = server_sock1.send(msg3, 5, 0);
-    // rc = -1;
-    // sleep(2);
-    // while(rc<0) rc = server_sock1.send(msg4, 5, 0);
-    std::cout<<"message send success"<<std::endl;    
+    printf("start to execute threads\n");
+    pthread_t send_t, recv_t;
+    long int dur = get_time();
+    pthread_create( &send_t, NULL, data_send, NULL);
+    pthread_create( &recv_t, NULL, data_recv, NULL);
+    // wait for the end
+    pthread_join( send_t, NULL );
+    pthread_join( recv_t, NULL );
+    dur = get_time() - dur;
+    double tput = (double)test_num * 1e9 / (double)dur;
+    printf("test finish!\ntput is %f\n", tput);
+    printf("the first ten latency is:\n");
+    for(int i=0;i<10;i++) printf("%lld\n", latency[i]);
+    printf("test finish");
     return 0;
 }
