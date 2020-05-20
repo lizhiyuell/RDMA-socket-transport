@@ -615,7 +615,7 @@ if (rc) {
 
         wc_array = ( struct ibv_wc* ) malloc( sizeof(struct ibv_wc) * POLL_SIZE );
         cq = rrdma->s_ctx->recv_cq;
-        // fprintf(stdout, "[Debug] In func recv: point 0\n");	
+        fprintf(stdout, "[Debug] In func recv: point 0\n");	
 
         // int flag=1;
         int recv_len = 0;
@@ -632,7 +632,7 @@ if (rc) {
                     printf("recv error %d!\n", 0);
                 }
                 recv_len = wc->byte_len;
-                // fprintf(stdout, "[Info] recv success! with byte len is %d\n", recv_len);
+                fprintf(stdout, "[Info] recv success! with byte len is %d\n", recv_len);
                 // fprintf(stdout, "[Debug] In func recv: point 1\n");	
                 // flag = 0;
                 struct ibv_recv_wr wr, *bad_wr = NULL;
