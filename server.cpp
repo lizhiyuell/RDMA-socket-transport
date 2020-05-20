@@ -23,6 +23,7 @@ long int get_time(){
 }
 
 void *data_send(void* argv){
+    class rdma::socket* sock_ptr = (class rdma::socket*) argv;
     printf("start to execute send thread\n");
     memset(msg_s, 0, msg_size);
     // begin to test
@@ -32,17 +33,18 @@ void *data_send(void* argv){
         memcpy(msg_s, &count, sizeof(int));
         rc = -1;
         printf("before send function\n");
-        while(rc<0) rc = sock_send.send(msg_s, msg_size, 0);
+        while(rc<0) rc = sock_ptr->send(msg_s, msg_size, 0);
         latency[count] = get_time();
         printf("send %d success\n", count);
     }
 }
 void *data_recv(void* argv){
+    class rdma::socket* sock_ptr = (class rdma::socket*) argv;
     printf("start to execute recv thread\n");
     int rc;
     for(int count=0;count<test_num;){
         rc=0;
-        while(rc<=0) rc = sock_recv.recv(msg_r, BufferSize, 0);
+        while(rc<=0) rc = sock_ptr->recv(msg_r, BufferSize, 0);
         int num;
         for(int k=0;k<rc;k++){
         memcpy(&num, msg_r+k*BufferSize, sizeof(int));
@@ -79,8 +81,8 @@ int main(){
     printf("start to execute threads\n");
     pthread_t send_t, recv_t;
     long int dur = get_time();
-    pthread_create( &send_t, NULL, data_send, NULL);
-    pthread_create( &recv_t, NULL, data_recv, NULL);
+    pthread_create( &send_t, NULL, data_send, (void*)&sock_send);
+    pthread_create( &recv_t, NULL, data_recv, (void*)&sock_recv);
     // wait for the end
     pthread_join( send_t, NULL );
     pthread_join( recv_t, NULL );
