@@ -12,6 +12,11 @@ char msg_r[BufferSize * MAX_CQ_NUM];
 class rdma::socket sock_send = rdma::socket(5);
 class rdma::socket sock_recv = rdma::socket(5);
 
+struct param_t{
+    class rdma::socket* s1;
+    class rdma::socket* s2;
+}
+
 long int get_time(){
     struct timespec c_time;
     clock_gettime(CLOCK_REALTIME, &c_time);
@@ -22,12 +27,14 @@ long int get_time(){
 }
 
 void *data_recv(void* argv){
+    struct param_t* myp = (struct param_t*) argv;
+    
     printf("start to execute recv thread\n");
     int rc;
     int rc2;
     for(int count=0;count<test_num;){
         rc=0;
-        while(rc<=0) rc = sock_recv.recv(msg_r, BufferSize, 0);
+        while(rc<=0) rc = myp->s2->recv(msg_r, BufferSize, 0);
         for(int k=0;k<rc;k++){
             memcpy(msg_s, msg_r+k*BufferSize, msg_size);
             //
@@ -35,7 +42,7 @@ void *data_recv(void* argv){
             memcpy(&num, msg_r+k*BufferSize, sizeof(int));
             //
             rc2=-1;
-            while(rc2<0)  rc2 = sock_send.send(msg_s, msg_size, 0);
+            while(rc2<0)  rc2 = myp->s1->send(msg_s, msg_size, 0);
             printf("finish with %d\n", num);
         }
         count+=rc;
@@ -66,7 +73,10 @@ int main(){
     }
     printf("start to execute threads\n");
     pthread_t recv_t;
-    pthread_create( &recv_t, NULL, data_recv, NULL);
+    struct param_t myp;
+    myp.s1 = &sock_send;
+    myp.s2 = &sock_recv;
+    pthread_create( &recv_t, NULL, data_recv, (void*)&myp);
     pthread_join( recv_t, NULL );
     printf("test finish");
     return 0;
