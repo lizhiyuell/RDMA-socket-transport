@@ -5,7 +5,7 @@
 #include<pthread.h>
 
 #define msg_size 4*1024
-#define test_num 10000
+#define test_num 5000
 
 char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
@@ -43,7 +43,7 @@ void *data_recv(void* argv){
             //
             rc2=-1;
             while(rc2<0)  rc2 = myp->s1->send(msg_s, msg_size, 0);
-            printf("finish with %d\n", num);
+            // printf("finish with %d\n", num);
         }
         count+=rc;
     }
