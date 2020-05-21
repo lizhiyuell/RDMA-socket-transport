@@ -99,7 +99,7 @@ int main(){
     // printf("the first ten latency is:\n");
     // for(int i=0;i<10;i++) printf("%lld\n", latency[i]);
     // order the latency
-    std::sort(latency, latency+test_num);
+    std::sort(latency, latency+test_num-1);
     printf("starting input file\n");
     char filepath[100];
     sprintf(filepath, "result/%d.txt", epoch);
