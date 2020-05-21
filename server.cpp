@@ -10,24 +10,23 @@
 #define msg_size 4*1024
 #define test_num 5000
 int epoch = 1;
-long long int latency[test_num];
+long int latency[2][test_num];
+long int r_latency[test_num];
 char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
 class rdma::socket sock_send = rdma::socket(3);
 class rdma::socket sock_recv = rdma::socket(3);
-long long int dur;
+long int dur_s, dur_n;
 
-long long int get_time(){
+void get_time(long int*sec, long int* nsec){
     struct timespec c_time;
     clock_gettime(CLOCK_REALTIME, &c_time);
-    long long int t1, t2;
-    t1 = c_time.tv_sec;
-    t2 = c_time.tv_nsec;
-    return t2 + t1*1000000000;
+    *sec = c_time.tv_sec;
+    *nsec = c_time.tv_nsec;
 }
 
 void *data_send(void* argv){
-    dur =  get_time();
+    get_time(&dur_s, &dur_n);
     class rdma::socket* sock_ptr = (class rdma::socket*) argv;
     printf("start to execute send thread\n");
     memset(msg_s, 0, msg_size);
@@ -40,11 +39,14 @@ void *data_send(void* argv){
         // printf("before send function\n");
         usleep(1);
         while(rc<0) rc = sock_ptr->send(msg_s, msg_size, 0);
-        latency[count] = get_time();
+        get_time(&latency[0][count], &latency[1][count]);
         // if(count%200==0) printf("send %d success\n", count);
         // if(count%200==0) printf("count:%d\n", count);
     }
-    dur = get_time() - dur;
+    long int t1, t2;
+    get_time(&t1, &t2);
+    dur_s = t1 - dur_s;
+    dur_n = t2 - dur_n;
 }
 void *data_recv(void* argv){
     class rdma::socket* sock_ptr = (class rdma::socket*) argv;
@@ -56,8 +58,10 @@ void *data_recv(void* argv){
         int num;
         for(int k=0;k<rc;k++){
         memcpy(&num, msg_r+k*BufferSize, sizeof(int));
-        long long int t2 = get_time();
-        latency[num] = t2 - latency[num];
+        // long long int t2 = get_time();
+        long int t1, t2;
+        get_time(&t1, &t2);
+        r_latency[num] = (latency[0][num]-t1)*1000000000+latency[1][num]-t2;
         // if(num%200==0) printf("finish with num:%d, count:%d\n", num, count); 
         }
         count+=rc;
@@ -94,12 +98,13 @@ int main(){
     // wait for the end
     pthread_join( send_t, NULL );
     pthread_join( recv_t, NULL );
+    long int dur = dur_s*1000000000+dur_n;
     double tput = (double)test_num * 1e9 / (double)(dur -  1e3*test_num);
     printf("test finish!\ntput is %f\n", tput);
     // printf("the first ten latency is:\n");
     // for(int i=0;i<10;i++) printf("%lld\n", latency[i]);
     // order the latency
-    std::sort(latency, latency+test_num);
+    std::sort(r_latency, r_latency+test_num);
     printf("starting input file\n");
     char filepath[100];
     sprintf(filepath, "result/%d.txt", epoch);
@@ -111,7 +116,7 @@ int main(){
 	}
     std::fstream output_file;
     output_file.open(filepath, std::ios::out);
-    for(int i=0;i<test_num;i++) output_file<<latency[i]<<std::endl;
+    for(int i=0;i<test_num;i++) output_file<<r_latency[i]<<std::endl;
     output_file.close();
     printf("test finish\n");
     // for(int i=0;i<test_num;i++) printf("%lld\n", latency[i]);
