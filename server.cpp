@@ -4,7 +4,7 @@
 #include<time.h>
 #include<string.h>
 #include<pthread.h>
-#include<direct.h>
+#include <sys/stat.h>
 #include<fstream>
 
 #define msg_size 4*1024
