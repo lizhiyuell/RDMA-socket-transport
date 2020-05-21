@@ -78,6 +78,6 @@ int main(){
     myp.s2 = &sock_recv;
     pthread_create( &recv_t, NULL, data_recv, (void*)&myp);
     pthread_join( recv_t, NULL );
-    printf("test finish");
+    printf("test finish\n");
     return 0;
 }

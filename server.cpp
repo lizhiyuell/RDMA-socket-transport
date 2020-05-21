@@ -100,8 +100,14 @@ int main(){
     sprintf(filepath, "result/%d.txt", epoch);
     std::fstream _file;
     _file.open(filepath, std::ios::out);
-    for(int i=0;i<test_num;i++) _file<<latency[i]<<std::endl;
-    _file.close();
+    if(!_file)
+	{
+		 mkdir(filepath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	}
+    std::fstream output_file;
+    output_file.open(filepath, std::ios::out);
+    for(int i=0;i<test_num;i++) output_file<<latency[i]<<std::endl;
+    output_file.close();
     printf("test finish\n");
     // for(int i=0;i<test_num;i++) printf("%lld\n", latency[i]);
     // printf("p50=%lld, p90")
