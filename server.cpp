@@ -15,6 +15,7 @@ char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
 class rdma::socket sock_send = rdma::socket(3);
 class rdma::socket sock_recv = rdma::socket(3);
+long int dur;
 
 long int get_time(){
     struct timespec c_time;
@@ -26,6 +27,7 @@ long int get_time(){
 }
 
 void *data_send(void* argv){
+    dur =  get_time();
     class rdma::socket* sock_ptr = (class rdma::socket*) argv;
     printf("start to execute send thread\n");
     memset(msg_s, 0, msg_size);
@@ -42,6 +44,7 @@ void *data_send(void* argv){
         // if(count%200==0) printf("send %d success\n", count);
         // if(count%200==0) printf("count:%d\n", count);
     }
+    dur = get_time() - dur;
 }
 void *data_recv(void* argv){
     class rdma::socket* sock_ptr = (class rdma::socket*) argv;
@@ -85,13 +88,12 @@ int main(){
     }
     printf("start to execute threads\n");
     pthread_t send_t, recv_t;
-    long int dur = get_time();
+    
     pthread_create( &send_t, NULL, data_send, (void*)&sock_send);
     pthread_create( &recv_t, NULL, data_recv, (void*)&sock_recv);
     // wait for the end
     pthread_join( send_t, NULL );
     pthread_join( recv_t, NULL );
-    dur = get_time() - dur;
     double tput = (double)test_num * 1e9 / (double)(dur -  1e3*test_num);
     printf("test finish!\ntput is %f\n", tput);
     // printf("the first ten latency is:\n");

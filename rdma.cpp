@@ -533,7 +533,7 @@ if (rc) {
             int num = ibv_poll_cq(rrdma->s_ctx->recv_cq, MAX_CQ_NUM, wc_array);
             if(num==0){
                 free(wc_array);
-                fprintf(stdout, "In send func: flow control executed!\n");
+                // fprintf(stdout, "In send func: flow control executed!\n");
                 return -1;
             }
             int count = 0;
