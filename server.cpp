@@ -54,7 +54,7 @@ void *data_recv(void* argv){
         memcpy(&num, msg_r+k*BufferSize, sizeof(int));
         long long int t2 = get_time();
         latency[num] = t2 - latency[num];
-        printf("finish with %d\n", num); 
+        if(num%200==0) printf("finish with num:%d, count:%d\n", num, count); 
         }
         count+=rc;
     }
