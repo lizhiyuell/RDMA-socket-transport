@@ -4,7 +4,7 @@
 #include<time.h>
 #include<pthread.h>
 
-#define msg_size 2*1024
+#define msg_size 1*1024
 #define test_num 100000
 
 char msg_s[msg_size];
