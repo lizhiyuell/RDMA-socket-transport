@@ -61,7 +61,7 @@ void *data_recv(void* argv){
         // long long int t2 = get_time();
         long int t1, t2;
         get_time(&t1, &t2);
-        r_latency[num] = (latency[0][num]-t1)*1000000000+latency[1][num]-t2;
+        r_latency[num] = (t1-latency[0][num])*1000000000+t2-latency[1][num];
         // if(num%200==0) printf("finish with num:%d, count:%d\n", num, count); 
         }
         count+=rc;
