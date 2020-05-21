@@ -3,6 +3,7 @@
 #include<algorithm>
 #include<time.h>
 #include<pthread.h>
+#include"nn.hpp"
 
 #define msg_size 1*1024
 #define test_num 100000

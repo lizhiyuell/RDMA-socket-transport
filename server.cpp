@@ -6,6 +6,7 @@
 #include<pthread.h>
 #include <sys/stat.h>
 #include<fstream>
+#include"nn.hpp"
 
 #define msg_size 1*1024
 #define test_num 100000
