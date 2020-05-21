@@ -27,7 +27,7 @@
 #define BufferSize MSG_SIZE_MAX  // send/recv  size for each node
 #define POLL_SIZE 50
 #define MAX_CQ_NUM 100
-#define MSG_SIZE_MAX 128*1024
+#define MSG_SIZE_MAX 64*1024
 
 
 // RDMA definition
