@@ -92,7 +92,7 @@ int main(){
     pthread_join( send_t, NULL );
     pthread_join( recv_t, NULL );
     dur = get_time() - dur;
-    double tput = (double)test_num * 1e9 / (double)dur;
+    double tput = (double)test_num * 1e9 / (double)(dur -  1e3*test_num);
     printf("test finish!\ntput is %f\n", tput);
     // printf("the first ten latency is:\n");
     // for(int i=0;i<10;i++) printf("%lld\n", latency[i]);
