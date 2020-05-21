@@ -43,7 +43,7 @@ void *data_recv(void* argv){
             //
             rc2=-1;
             while(rc2<0)  rc2 = myp->s1->send(msg_s, msg_size, 0);
-            if(num%200==0) printf("finish with num:%d, count:%d\n", num, count); 
+            // if(num%200==0) printf("finish with num:%d, count:%d\n", num, count); 
         }
         count+=rc;
     }

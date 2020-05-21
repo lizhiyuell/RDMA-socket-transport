@@ -40,7 +40,7 @@ void *data_send(void* argv){
         while(rc<0) rc = sock_ptr->send(msg_s, msg_size, 0);
         latency[count] = get_time();
         // if(count%200==0) printf("send %d success\n", count);
-        if(count%200==0) printf("count:%d\n", count);
+        // if(count%200==0) printf("count:%d\n", count);
     }
 }
 void *data_recv(void* argv){
@@ -55,7 +55,7 @@ void *data_recv(void* argv){
         memcpy(&num, msg_r+k*BufferSize, sizeof(int));
         long long int t2 = get_time();
         latency[num] = t2 - latency[num];
-        if(num%200==0) printf("finish with num:%d, count:%d\n", num, count); 
+        // if(num%200==0) printf("finish with num:%d, count:%d\n", num, count); 
         }
         count+=rc;
     }
