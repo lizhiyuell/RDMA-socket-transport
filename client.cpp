@@ -4,8 +4,8 @@
 #include<time.h>
 #include<pthread.h>
 
-#define msg_size 4*1024
-#define test_num 5001
+#define msg_size 1*1024
+#define test_num 5500
 
 char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
