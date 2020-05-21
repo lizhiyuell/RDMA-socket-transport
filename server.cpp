@@ -7,9 +7,9 @@
 #include <sys/stat.h>
 #include<fstream>
 
-#define msg_size 32*1024
+#define msg_size 64*1024
 #define test_num 5500
-int epoch = 6;
+int epoch = 7;
 long int latency[2][test_num];
 long int r_latency[test_num];
 char msg_s[msg_size];
