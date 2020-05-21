@@ -8,7 +8,7 @@
 #include<fstream>
 
 #define msg_size 4*1024
-#define test_num 10
+#define test_num 10000
 int epoch = 1;
 long long int latency[test_num];
 char msg_s[msg_size];

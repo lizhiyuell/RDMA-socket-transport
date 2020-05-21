@@ -5,7 +5,7 @@
 #include<pthread.h>
 
 #define msg_size 4*1024
-#define test_num 10
+#define test_num 10000
 
 char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
