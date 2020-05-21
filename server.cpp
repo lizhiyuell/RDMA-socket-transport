@@ -4,9 +4,11 @@
 #include<time.h>
 #include<string.h>
 #include<pthread.h>
+#include<fstream>
 
 #define msg_size 4*1024
 #define test_num 10
+int epoch = 1;
 long long int latency[test_num];
 char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
@@ -93,7 +95,15 @@ int main(){
     // for(int i=0;i<10;i++) printf("%lld\n", latency[i]);
     // order the latency
     std::sort(latency, latency+test_num);
-    printf("test finish");
-    for(int i=0;i<test_num;i++) printf("%lld\n", latency[i]);
+    printf("starting input file\n");
+    char filepath[100];
+    sprintf(filepath, "result/%d.txt", epoch);
+    std::fstream _file;
+    _file.open(filepath, std::ios::out);
+    for(int i=0;i<test_num;i++) _file<<latency[i]<<std::endl;
+    _file.close();
+    printf("test finish\n");
+    // for(int i=0;i<test_num;i++) printf("%lld\n", latency[i]);
+    // printf("p50=%lld, p90")
     return 0;
 }
