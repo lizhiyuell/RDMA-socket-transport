@@ -15,12 +15,12 @@ char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
 class rdma::socket sock_send = rdma::socket(3);
 class rdma::socket sock_recv = rdma::socket(3);
-long int dur;
+long long int dur;
 
-long int get_time(){
+long long int get_time(){
     struct timespec c_time;
     clock_gettime(CLOCK_REALTIME, &c_time);
-    long int t1, t2;
+    long long int t1, t2;
     t1 = c_time.tv_sec;
     t2 = c_time.tv_nsec;
     return t2 + t1*1000000000;
@@ -99,7 +99,7 @@ int main(){
     // printf("the first ten latency is:\n");
     // for(int i=0;i<10;i++) printf("%lld\n", latency[i]);
     // order the latency
-    std::sort(latency, latency+test_num-1);
+    std::sort(latency, latency+test_num);
     printf("starting input file\n");
     char filepath[100];
     sprintf(filepath, "result/%d.txt", epoch);
