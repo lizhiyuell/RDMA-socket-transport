@@ -5,7 +5,7 @@
 #include<pthread.h>
 
 #define msg_size 4*1024
-#define test_num 5000
+#define test_num 5001
 
 char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
@@ -17,14 +17,6 @@ struct param_t{
     class rdma::socket* s2;
 };
 
-long int get_time(){
-    struct timespec c_time;
-    clock_gettime(CLOCK_REALTIME, &c_time);
-    long int t1, t2;
-    t1 = c_time.tv_sec;
-    t2 = c_time.tv_nsec;
-    return t2 + t1*1000000000;
-}
 
 void *data_recv(void* argv){
     struct param_t* myp = (struct param_t*) argv;
