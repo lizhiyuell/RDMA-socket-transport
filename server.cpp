@@ -10,13 +10,20 @@
 
 #define msg_size 1*1024
 #define test_num 100000
+#define USE_RDMA
+
 int epoch = 10;
 long int latency[2][test_num];
 long int r_latency[test_num];
 char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
-class nn::socket sock_send = nn::socket(3);
-class nn::socket sock_recv = nn::socket(3);
+
+
+#ifdef USE_RDMA
+class rdma::socket sock_send = nn::socket(3);
+class rdma::socket sock_recv = nn::socket(3);
+#else
+#endif
 long int dur_s, dur_n;
 
 void get_time(long int*sec, long int* nsec){

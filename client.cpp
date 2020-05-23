@@ -7,11 +7,15 @@
 
 #define msg_size 1*1024
 #define test_num 100000
+#define USE_RDMA
 
 char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
-class nn::socket sock_send = nn::socket(5);
-class nn::socket sock_recv = nn::socket(5);
+#ifdef USE_RDMA
+class rdma::socket sock_send = nn::socket(5);
+class rdma::socket sock_recv = nn::socket(5);
+#else
+#endif
 
 struct param_t{
     class nn::socket* s1;
