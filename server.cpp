@@ -10,7 +10,7 @@
 
 #define msg_size 1*1024
 #define test_num 100000
-int epoch = 8;
+int epoch = 10;
 long int latency[2][test_num];
 long int r_latency[test_num];
 char msg_s[msg_size];
@@ -75,7 +75,7 @@ int main(){
     char local_addr1[40] = "tcp://172.23.12.124:8888";
     char local_addr2[40] = "tcp://172.23.12.124:9999";
     // std::cout<<"before bind port function"<<std::endl;
-    class nn::socket sock_send = nn::socket(3);
+    // class nn::socket sock_send = nn::socket(3);
     sock_send.bind(local_addr1);
     sock_recv.bind(local_addr2);
     // test if connection is build
