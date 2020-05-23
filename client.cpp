@@ -7,7 +7,7 @@
 
 #define msg_size 4*1024
 #define test_num 1000
-#define USE_RDMA
+// #define USE_RDMA
 
 char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
@@ -15,11 +15,27 @@ char msg_r[BufferSize * MAX_CQ_NUM];
 class rdma::socket sock_send = rdma::socket(5);
 class rdma::socket sock_recv = rdma::socket(5);
 #else
+int timeo = 1000; // timeout in ms
+int stimeo = 1000; // timeout in ms
+int opt = 0;
+class nn::socket sock_send = nn::socket(AF_SP,NN_PAIR);
+class nn::socket sock_recv = nn::socket(AF_SP,NN_PAIR);
+sock_send.setsockopt(NN_SOL_SOCKET,NN_RCVTIMEO,&timeo,sizeof(timeo));
+sock_send.setsockopt(NN_SOL_SOCKET,NN_SNDTIMEO,&stimeo,sizeof(stimeo));
+sock_send.setsockopt(NN_SOL_SOCKET,NN_TCP_NODELAY,&opt,sizeof(opt));
+sock_recv.setsockopt(NN_SOL_SOCKET,NN_RCVTIMEO,&timeo,sizeof(timeo));
+sock_recv.setsockopt(NN_SOL_SOCKET,NN_SNDTIMEO,&stimeo,sizeof(stimeo));
+sock_recv.setsockopt(NN_SOL_SOCKET,NN_TCP_NODELAY,&opt,sizeof(opt));
 #endif
 
 struct param_t{
+    #ifdef USE_RDMA
     class rdma::socket* s1;
     class rdma::socket* s2;
+    #else
+    class nn::socket* s1;
+    class nn::socket* s2;
+    #endif
 };
 
 
@@ -52,7 +68,6 @@ int main(){
     char remote_addr1[40] = "tcp://172.23.12.124:8888";
     char remote_addr2[40] = "tcp://172.23.12.124:9999";
     char msg1[BufferSize * MAX_CQ_NUM] = "This is the client side1";
-    class rdma::socket sock_send = rdma::socket(5);
     sock_recv.connect(remote_addr1);
     sock_send.connect(remote_addr2);
     printf("connect started\n");

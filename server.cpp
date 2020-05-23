@@ -10,7 +10,7 @@
 
 #define msg_size 4*1024
 #define test_num 1000
-#define USE_RDMA
+// #define USE_RDMA
 
 int epoch = 10;
 long int latency[2][test_num];
@@ -23,6 +23,17 @@ char msg_r[BufferSize * MAX_CQ_NUM];
 class rdma::socket sock_send = rdma::socket(3);
 class rdma::socket sock_recv = rdma::socket(3);
 #else
+int timeo = 1000; // timeout in ms
+int stimeo = 1000; // timeout in ms
+int opt = 0;
+class nn::socket sock_send = nn::socket(AF_SP,NN_PAIR);
+class nn::socket sock_recv = nn::socket(AF_SP,NN_PAIR);
+sock_send.setsockopt(NN_SOL_SOCKET,NN_RCVTIMEO,&timeo,sizeof(timeo));
+sock_send.setsockopt(NN_SOL_SOCKET,NN_SNDTIMEO,&stimeo,sizeof(stimeo));
+sock_send.setsockopt(NN_SOL_SOCKET,NN_TCP_NODELAY,&opt,sizeof(opt));
+sock_recv.setsockopt(NN_SOL_SOCKET,NN_RCVTIMEO,&timeo,sizeof(timeo));
+sock_recv.setsockopt(NN_SOL_SOCKET,NN_SNDTIMEO,&stimeo,sizeof(stimeo));
+sock_recv.setsockopt(NN_SOL_SOCKET,NN_TCP_NODELAY,&opt,sizeof(opt));
 #endif
 long int dur_s, dur_n;
 
@@ -35,7 +46,11 @@ void get_time(long int*sec, long int* nsec){
 
 void *data_send(void* argv){
     get_time(&dur_s, &dur_n);
+    #ifdef USE_RDMA
     class rdma::socket* sock_ptr = (class rdma::socket*) argv;
+    #else
+    class nn::socket* sock_ptr = (class nn::socket*) argv;
+    #endif
     printf("start to execute send thread\n");
     memset(msg_s, 0, msg_size);
     // begin to test
@@ -57,7 +72,11 @@ void *data_send(void* argv){
     dur_n = t2 - dur_n;
 }
 void *data_recv(void* argv){
+    #ifdef USE_RDMA
     class rdma::socket* sock_ptr = (class rdma::socket*) argv;
+    #else
+    class nn::socket* sock_ptr = (class nn::socket*) argv;
+    #endif
     printf("start to execute recv thread\n");
     int rc;
     int valid_num=0;
@@ -87,7 +106,6 @@ int main(){
     char local_addr1[40] = "tcp://172.23.12.124:8888";
     char local_addr2[40] = "tcp://172.23.12.124:9999";
     // std::cout<<"before bind port function"<<std::endl;
-    // class rdma::socket sock_send = rdma::socket(3);
     sock_send.bind(local_addr1);
     sock_recv.bind(local_addr2);
     // test if connection is build
