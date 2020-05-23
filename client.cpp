@@ -6,7 +6,7 @@
 #include"nn.hpp"
 
 #define msg_size 4*1024
-#define test_num 100000
+#define test_num 1000
 #define USE_RDMA
 
 char msg_s[msg_size];
