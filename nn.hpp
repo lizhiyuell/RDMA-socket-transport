@@ -25,6 +25,8 @@
 
 #include <nanomsg/nn.h>
 #include <nanomsg/tcp.h>
+#include <nanomsg/bus.h>
+#include <nanomsg/pair.h>
 
 #include <cassert>
 #include <cstring>
