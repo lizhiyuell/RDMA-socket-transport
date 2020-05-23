@@ -59,7 +59,7 @@ void *data_recv(void* argv){
         for(int count=0;count<test_num;count++){
         rc=0;
         while(rc<=0) rc = myp->s2->recv(msg_r, BufferSize, 0);
-        memcpy(msg_s, msg_r+k*BufferSize, msg_size);
+        memcpy(msg_s, msg_r, msg_size);
         rc2=-1;
         while(rc2<0)  rc2 = myp->s1->send(msg_s, msg_size, 0);
     }
