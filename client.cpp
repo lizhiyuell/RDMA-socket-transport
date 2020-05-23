@@ -7,7 +7,7 @@
 
 #define msg_size 4*1024
 #define test_num 1000
-// #define USE_RDMA
+#define USE_RDMA
 
 char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
