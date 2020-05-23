@@ -60,20 +60,25 @@ void *data_recv(void* argv){
     class rdma::socket* sock_ptr = (class rdma::socket*) argv;
     printf("start to execute recv thread\n");
     int rc;
+    int valid_num=0;
+    int error_num=0;
     for(int count=0;count<test_num;){
         rc=0;
         while(rc<=0) rc = sock_ptr->recv(msg_r, BufferSize, 0);
         int num;
         for(int k=0;k<rc;k++){
         memcpy(&num, msg_r+k*BufferSize, sizeof(int));
+        if(num!=valid_num){ error_num++;valid_num = num;}
         // long long int t2 = get_time();
         long int t1, t2;
         get_time(&t1, &t2);
         r_latency[num] = (t1-latency[0][num])*1000000000+t2-latency[1][num];
-        // if(num%200==0) printf("finish with num:%d, count:%d\n", num, count); 
+        // if(num%200==0) printf("finish with num:%d, count:%d\n", num, count);
+        valid_num++;
         }
         count+=rc;
     }
+    printf("In recv function, %d errors in total\n", error_num);
 }
 
 int main(){
