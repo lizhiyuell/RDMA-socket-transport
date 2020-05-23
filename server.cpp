@@ -28,12 +28,6 @@ int stimeo = 1000; // timeout in ms
 int opt = 0;
 class nn::socket sock_send = nn::socket(AF_SP,NN_PAIR);
 class nn::socket sock_recv = nn::socket(AF_SP,NN_PAIR);
-sock_send.setsockopt(NN_SOL_SOCKET,NN_RCVTIMEO,&timeo,sizeof(timeo));
-sock_send.setsockopt(NN_SOL_SOCKET,NN_SNDTIMEO,&stimeo,sizeof(stimeo));
-sock_send.setsockopt(NN_SOL_SOCKET,NN_TCP_NODELAY,&opt,sizeof(opt));
-sock_recv.setsockopt(NN_SOL_SOCKET,NN_RCVTIMEO,&timeo,sizeof(timeo));
-sock_recv.setsockopt(NN_SOL_SOCKET,NN_SNDTIMEO,&stimeo,sizeof(stimeo));
-sock_recv.setsockopt(NN_SOL_SOCKET,NN_TCP_NODELAY,&opt,sizeof(opt));
 #endif
 long int dur_s, dur_n;
 
@@ -105,6 +99,14 @@ int main(){
     std::cout<<"This is the server side"<<std::endl;
     char local_addr1[40] = "tcp://172.23.12.124:8888";
     char local_addr2[40] = "tcp://172.23.12.124:9999";
+    #ifndef USE_RDMA
+    sock_send.setsockopt(NN_SOL_SOCKET,NN_RCVTIMEO,&timeo,sizeof(timeo));
+    sock_send.setsockopt(NN_SOL_SOCKET,NN_SNDTIMEO,&stimeo,sizeof(stimeo));
+    sock_send.setsockopt(NN_SOL_SOCKET,NN_TCP_NODELAY,&opt,sizeof(opt));
+    sock_recv.setsockopt(NN_SOL_SOCKET,NN_RCVTIMEO,&timeo,sizeof(timeo));
+    sock_recv.setsockopt(NN_SOL_SOCKET,NN_SNDTIMEO,&stimeo,sizeof(stimeo));
+    sock_recv.setsockopt(NN_SOL_SOCKET,NN_TCP_NODELAY,&opt,sizeof(opt));
+    #endif
     // std::cout<<"before bind port function"<<std::endl;
     sock_send.bind(local_addr1);
     sock_recv.bind(local_addr2);
