@@ -1,6 +1,10 @@
 CC := g++
-CPPFLAGS := -g -std=c++11
-LDLIBS := ${LDLIBS} -libverbs -lpthread -lrt
+JEMALLOC:=/root/jty/jemalloc-4.5.0
+NNMSG := ./nanomsg-1.0.0
+LDLIBS := ${LDLIBS} -libverbs -lpthread -lrt -lnanomsg -ljemalloc
+LDFLAGS := -L$(NNMSG) -I$(JEMALLOC)/include
+CPPFLAGS := -g -std=c++11 $(LDFLAGS)
+
 
 .PHONY: clean
 
