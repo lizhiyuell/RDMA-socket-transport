@@ -19,7 +19,7 @@ char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
 
 
-// #ifdef USE_RDMA
+#ifdef USE_RDMA
 class rdma::socket sock_send = rdma::socket(3);
 class rdma::socket sock_recv = rdma::socket(3);
 #else
