@@ -20,8 +20,8 @@ char msg_r[BufferSize * MAX_CQ_NUM];
 
 
 #ifdef USE_RDMA
-class rdma::socket sock_send = nn::socket(3);
-class rdma::socket sock_recv = nn::socket(3);
+class rdma::socket sock_send = rdma::socket(3);
+class rdma::socket sock_recv = rdma::socket(3);
 #else
 #endif
 long int dur_s, dur_n;
@@ -35,7 +35,7 @@ void get_time(long int*sec, long int* nsec){
 
 void *data_send(void* argv){
     get_time(&dur_s, &dur_n);
-    class nn::socket* sock_ptr = (class nn::socket*) argv;
+    class rdma::socket* sock_ptr = (class rdma::socket*) argv;
     printf("start to execute send thread\n");
     memset(msg_s, 0, msg_size);
     // begin to test
@@ -57,7 +57,7 @@ void *data_send(void* argv){
     dur_n = t2 - dur_n;
 }
 void *data_recv(void* argv){
-    class nn::socket* sock_ptr = (class nn::socket*) argv;
+    class rdma::socket* sock_ptr = (class rdma::socket*) argv;
     printf("start to execute recv thread\n");
     int rc;
     for(int count=0;count<test_num;){
@@ -82,7 +82,7 @@ int main(){
     char local_addr1[40] = "tcp://172.23.12.124:8888";
     char local_addr2[40] = "tcp://172.23.12.124:9999";
     // std::cout<<"before bind port function"<<std::endl;
-    // class nn::socket sock_send = nn::socket(3);
+    // class rdma::socket sock_send = rdma::socket(3);
     sock_send.bind(local_addr1);
     sock_recv.bind(local_addr2);
     // test if connection is build

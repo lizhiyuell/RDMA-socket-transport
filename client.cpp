@@ -12,14 +12,14 @@
 char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
 #ifdef USE_RDMA
-class rdma::socket sock_send = nn::socket(5);
-class rdma::socket sock_recv = nn::socket(5);
+class rdma::socket sock_send = rdma::socket(5);
+class rdma::socket sock_recv = rdma::socket(5);
 #else
 #endif
 
 struct param_t{
-    class nn::socket* s1;
-    class nn::socket* s2;
+    class rdma::socket* s1;
+    class rdma::socket* s2;
 };
 
 
@@ -52,7 +52,7 @@ int main(){
     char remote_addr1[40] = "tcp://172.23.12.124:8888";
     char remote_addr2[40] = "tcp://172.23.12.124:9999";
     char msg1[BufferSize * MAX_CQ_NUM] = "This is the client side1";
-    class nn::socket sock_send = nn::socket(5);
+    class rdma::socket sock_send = rdma::socket(5);
     sock_recv.connect(remote_addr1);
     sock_send.connect(remote_addr2);
     printf("connect started\n");
