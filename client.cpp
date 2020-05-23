@@ -5,7 +5,7 @@
 #include<pthread.h>
 #include"nn.hpp"
 
-#define msg_size 32*1024
+#define msg_size 64*1024
 #define test_num 10000
 // #define USE_RDMA
 
