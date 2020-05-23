@@ -9,7 +9,7 @@
 #include"nn.hpp"
 
 #define msg_size 64*1024
-#define test_num 100000
+#define test_num 10000
 // #define USE_RDMA
 
 int epoch = 11;
