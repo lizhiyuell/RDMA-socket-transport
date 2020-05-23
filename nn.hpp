@@ -189,7 +189,7 @@ namespace nn
         int s;
 
         /*  Prevent making copies of the socket by accident. */
-        socket (const socket&);
+        // socket (const socket&);
         void operator = (const socket&);
     };
 
