@@ -12,7 +12,7 @@
 #define test_num 1000
 // #define USE_RDMA
 
-int epoch = 10;
+int epoch = 11;
 long int latency[2][test_num];
 long int r_latency[test_num];
 char msg_s[msg_size];
