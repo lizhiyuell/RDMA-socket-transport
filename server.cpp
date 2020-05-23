@@ -10,7 +10,7 @@
 
 #define msg_size 4*1024
 #define test_num 1000
-#define USE_RDMA
+// #define USE_RDMA
 
 int epoch = 11;
 long int latency[2][test_num];
@@ -19,7 +19,7 @@ char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
 
 
-#ifdef USE_RDMA
+// #ifdef USE_RDMA
 class rdma::socket sock_send = rdma::socket(3);
 class rdma::socket sock_recv = rdma::socket(3);
 #else
@@ -75,6 +75,7 @@ void *data_recv(void* argv){
     int rc;
     int valid_num=0;
     int error_num=0;
+    #ifdef USE_RDMA
     for(int count=0;count<test_num;){
         rc=0;
         while(rc<=0) rc = sock_ptr->recv(msg_r, BufferSize, 0);
@@ -91,6 +92,20 @@ void *data_recv(void* argv){
         }
         count+=rc;
     }
+    #else
+    for(int count=0;count<test_num;count++){
+        rc=0;
+        while(rc<=0) rc = sock_ptr->recv(msg_r, BufferSize, 0);
+        int num;
+        memcpy(&num, msg_r, sizeof(int));
+        if(num!=valid_num){ error_num++;valid_num = num;}
+        // long long int t2 = get_time();
+        long int t1, t2;
+        get_time(&t1, &t2);
+        r_latency[num] = (t1-latency[0][num])*1000000000+t2-latency[1][num];
+        // if(num%200==0) printf("finish with num:%d, count:%d\n", num, count);
+        valid_num++;
+    #endif
     printf("In recv function, %d errors in total\n", error_num);
 }
 

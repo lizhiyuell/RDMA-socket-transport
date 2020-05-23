@@ -7,7 +7,7 @@
 
 #define msg_size 4*1024
 #define test_num 1000
-#define USE_RDMA
+// #define USE_RDMA
 
 char msg_s[msg_size];
 char msg_r[BufferSize * MAX_CQ_NUM];
@@ -39,6 +39,7 @@ void *data_recv(void* argv){
     // printf("start to execute recv thread\n");
     int rc;
     int rc2;
+    #ifdef USE_RDMA
     for(int count=0;count<test_num;){
         rc=0;
         while(rc<=0) rc = myp->s2->recv(msg_r, BufferSize, 0);
@@ -54,6 +55,15 @@ void *data_recv(void* argv){
         }
         count+=rc;
     }
+    #else
+        for(int count=0;count<test_num;count++){
+        rc=0;
+        while(rc<=0) rc = myp->s2->recv(msg_r, BufferSize, 0);
+        memcpy(msg_s, msg_r+k*BufferSize, msg_size);
+        rc2=-1;
+        while(rc2<0)  rc2 = myp->s1->send(msg_s, msg_size, 0);
+    }
+    #endif
 }
 
 int main(){
