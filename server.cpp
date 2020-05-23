@@ -105,6 +105,7 @@ void *data_recv(void* argv){
         r_latency[num] = (t1-latency[0][num])*1000000000+t2-latency[1][num];
         // if(num%200==0) printf("finish with num:%d, count:%d\n", num, count);
         valid_num++;
+    }
     #endif
     printf("In recv function, %d errors in total\n", error_num);
 }
