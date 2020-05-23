@@ -8,7 +8,7 @@
 #include<fstream>
 #include"nn.hpp"
 
-#define msg_size 1*1024
+#define msg_size 4*1024
 #define test_num 100000
 #define USE_RDMA
 
@@ -46,8 +46,8 @@ void *data_send(void* argv){
         rc = -1;
         // printf("before send function\n");
         usleep(1);
-        while(rc<0) rc = sock_ptr->send(msg_s, msg_size, 0);
         get_time(&latency[0][count], &latency[1][count]);
+        while(rc<0) rc = sock_ptr->send(msg_s, msg_size, 0);
         // if(count%200==0) printf("send %d success\n", count);
         // if(count%200==0) printf("count:%d\n", count);
     }
